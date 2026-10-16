@@ -11,20 +11,25 @@ EXE = ROOT / "apps/macos/build-cosim/BawangMac_cosim"
 CONFIG = ROOT / "games/bawang_sanguozhi/cosim.json"
 
 
-def run(name, a, b, stride, count, *, inject=False, start=0):
+def run(name, a, b, stride, count, *, inject=False, start=0,
+        start_frame=0, clock="cycle", subs=None):
     ports = 4700 + run.serial * 2
     run.serial += 1
     cmd = [sys.executable, str(TOOL), "--game-config", str(CONFIG),
-           "--exe", str(EXE), "--a", a, "--b", b, "--clock", "cycle",
+           "--exe", str(EXE), "--a", a, "--b", b, "--clock", clock,
            "--stride", str(stride), "--max", str(count),
            "--porta", str(ports), "--portb", str(ports + 1)]
     if inject:
         cmd += ["--inject-at", "5", "--inject", "reg:0:1"]
+    if subs:
+        cmd += ["--subs", subs]
     env = os.environ.copy()
     if start:
         env["GENESIS_COSIM_START_CYCLE"] = str(start)
+    if start_frame:
+        env["GENESIS_COSIM_START_FRAME"] = str(start_frame)
     p = subprocess.run(cmd, cwd=ROOT, env=env, capture_output=True, text=True,
-                       timeout=90)
+                       timeout=120)
     output = p.stdout + p.stderr
     expected = (
         p.returncode == 1 and "cpu68k" in output and "FIRST DIVERGENCE" in output
@@ -46,3 +51,11 @@ if __name__ == "__main__":
     run("difference injection", "recomp", "recomp", 1000, 20, inject=True)
     run("native/interpreter boot and copied RAM helper", "recomp", "interp",
         1, 1200, start=1195000)
+    # $03D7FA CLR.L -(SP) runs in a loop. Missing generator stack accounting
+    # accumulated a false 65-level return skip at $03D82C and skipped $03DB28.
+    # IRQ exception-frame PC bytes still differ while native PC is block-level;
+    # compare architectural CPU, timing, and rendered VDP state here.
+    run("CLR stack accounting at late intro", "recomp", "interp",
+        1, 300, start=165975000, subs="cpu68k,timing,vdp")
+    run("dynamic $00194A entry and continuing intro", "recomp", "interp",
+        1, 120, start_frame=1330, clock="frame", subs="cpu68k,timing,vdp")

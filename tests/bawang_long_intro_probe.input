@@ -1,0 +1,11 @@
+# Inspect the ROM-driven sequence beyond the first five thousand frames.
+WAIT 6000
+SCREENSHOT bawang_intro_6000.png
+HOLD START
+WAIT 90
+RELEASE START
+WAIT 910
+SCREENSHOT bawang_intro_7000.png
+WAIT 1000
+SCREENSHOT bawang_intro_8000.png
+EXIT 0

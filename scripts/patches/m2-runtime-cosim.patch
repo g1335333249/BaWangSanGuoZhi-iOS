@@ -1,5 +1,5 @@
 diff --git a/runner/cosim.c b/runner/cosim.c
-index 618a9bd..b9f6684 100644
+index 618a9bd..ac690d7 100644
 --- a/runner/cosim.c
 +++ b/runner/cosim.c
 @@ -22,6 +22,7 @@ extern int      glue_cosim_vint_latched(void);
@@ -39,7 +39,35 @@ index 618a9bd..b9f6684 100644
  
  /* bounded reporting ring */
  #define RING_N 8192u   /* power of two */
-@@ -398,12 +398,15 @@ void cosim_init(void) {
+@@ -251,6 +251,27 @@ static void handle(sock_t c, char *line) {
+             off += snprintf(out+off, sizeof out-off, " a%d %08x", i, g_cpu.A[i]);
+         off += snprintf(out+off, sizeof out-off, "\n");
+         send_str(c, out);
++    } else if (!strcmp(line, "control")) {
++        wait_parked();
++        snprintf(out, sizeof out,
++            "rte_pending %d early_return %d split_sp_popped %d trace_pc %06x a7 %08x\n",
++            g_rte_pending, g_early_return, g_split_sp_popped,
++            g_native_trace_pc & 0xFFFFFFu, g_cpu.A[7]);
++        send_str(c, out);
++    } else if (!strcmp(line, "stack")) {
++        wait_parked();
++        uint32_t sp = g_cpu.A[7];
++        int off = snprintf(out, sizeof out, "sp %08x bytes", sp);
++        for (int i = -32; i < 32; ++i) {
++            uint32_t addr = (sp + (uint32_t)i) & 0xFFFFFFu;
++            if (addr >= 0xFF0000u)
++                off += snprintf(out + off, sizeof out - (size_t)off,
++                    " %02x", g_ram[addr & 0xFFFFu]);
++            else
++                off += snprintf(out + off, sizeof out - (size_t)off, " ??");
++        }
++        snprintf(out + off, sizeof out - (size_t)off, "\n");
++        send_str(c, out);
+     } else if (!strncmp(line, "inject ram ", 11)) {
+         unsigned addr, xorv;
+         if (sscanf(line + 11, "%x %x", &addr, &xorv) == 2)
+@@ -398,12 +419,15 @@ void cosim_init(void) {
       * known-divergent prologue like the Sega scream to probe the steady state). */
      const char *esf = getenv("GENESIS_COSIM_START_FRAME");
      s_start_frame = (esf && *esf) ? strtoull(esf, 0, 10) : 0;

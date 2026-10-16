@@ -1,5 +1,5 @@
 diff --git a/profiles/genesis/code_generator.c b/profiles/genesis/code_generator.c
-index 86f6078..994a47b 100644
+index 86f6078..8791505 100644
 --- a/profiles/genesis/code_generator.c
 +++ b/profiles/genesis/code_generator.c
 @@ -2344,6 +2344,10 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
@@ -61,7 +61,7 @@ index 86f6078..994a47b 100644
          fprintf(f, "    return; } /* RTE/skip propagation (pre-pop) */\n");
          fprintf(f,
                  "  if (g_cpu.A[7] != (uint32_t)(_jsr_slot_sp_%06X + 4u))\n"
-@@ -3275,7 +3281,9 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+@@ -3275,7 +3281,12 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
           * PSGSetFreq — corrupting downstream Bcc paths that read X
           * (squelched notes, drift). */
          ExtReader er2; er_init(&er2, instr);
@@ -69,10 +69,25 @@ index 86f6078..994a47b 100644
 +        /* CLR has no read phase. Treat its destination as a normal store so
 +         * -(An) decrements and (An)+ increments exactly once. */
 +        emit_ea_store_ex(f, instr, instr->src_ea, sz, &er2, "0", 0);
++        if (*has_sp_adjust && sz == M68K_SIZE_L &&
++            instr->src_ea == ((EA_An_PRE << 3) | 7))
++            fprintf(f, "  _sp_popped -= 1; /* CLR.L -(SP) */\n");
          fprintf(f, "  g_cpu.SR = (g_cpu.SR & ~0x0Fu) | (1u<<2);\n");
          break;
      }
-@@ -5086,6 +5094,7 @@ bool codegen_emit(const GenesisRom *rom, const FunctionList *funcs,
+@@ -4926,6 +4937,11 @@ bool codegen_emit(const GenesisRom *rom, const FunctionList *funcs,
+                     has_sp_adjust = 1;
+                     break;
+                 }
++                if (pre.size == M68K_SIZE_L && pre.mnemonic == MN_CLR
++                        && pre.src_ea == ((EA_An_PRE << 3) | 7)) {
++                    has_sp_adjust = 1;
++                    break;
++                }
+                 if (pre.size == M68K_SIZE_L && pre.mnemonic == MN_MOVEM) {
+                     int dir = (pre.words[0] >> 10) & 1;
+                     int mode = (pre.src_ea >> 3) & 7;
+@@ -5086,6 +5102,7 @@ bool codegen_emit(const GenesisRom *rom, const FunctionList *funcs,
              }
  
              fprintf(f_func, "  /* $%06X */\n", pc);
@@ -80,7 +95,7 @@ index 86f6078..994a47b 100644
              if (s_reverse_debug)
                  fprintf(f_func, "  rdb_on_insn(0x%06Xu);\n", pc);
              emit_instr(f_func, rom, &instr, &instrs, &skip_until_label, &has_sp_adjust,
-@@ -5099,7 +5108,8 @@ bool codegen_emit(const GenesisRom *rom, const FunctionList *funcs,
+@@ -5099,7 +5116,8 @@ bool codegen_emit(const GenesisRom *rom, const FunctionList *funcs,
               * matching the interpreter's interrupt-driven behavior. */
              {
                  int cyc = estimate_cycles(&instr);

@@ -28,5 +28,9 @@ late_extra = [
   0x001970,
   0x000388, 0x0003A2, 0x000A4C, 0x0005E0, 0x000940, 0x000750,
   0x00045A, 0x000450, 0x0008E2, 0x000802, 0x000512, 0x000784,
+  # Runtime trace at frame 1151: computed transfer to aligned code after $000698 RTS.
+  0x00069C,
+  # Runtime trace at frame 1344: entry begins with MOVE SR,-(SP), ORI #$0700,SR.
+  0x00194A,
 ]
 blacklist = []

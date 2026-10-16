@@ -1,0 +1,11 @@
+# Try the original controller Start during the opening sequence, then record
+# the game framebuffer. This tests the game's own input handling.
+WAIT 650
+HOLD START
+WAIT 90
+RELEASE START
+WAIT 300
+SCREENSHOT bawang_start_probe_1040.png
+WAIT 450
+SCREENSHOT bawang_start_probe_1490.png
+EXIT 0
