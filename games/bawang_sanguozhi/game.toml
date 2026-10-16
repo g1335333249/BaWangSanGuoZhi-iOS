@@ -53,5 +53,7 @@ late_extra = [
   0x010070, 0x023C52, 0x0100AC,
   # Two more event helpers, observed at frames 14545/14583 after ROM RTS.
   0x023B42, 0x023AB8,
+  # Longer first-turn trace, frame 18185: MOVEM entry after $024040 RTS.
+  0x024042,
 ]
 blacklist = []

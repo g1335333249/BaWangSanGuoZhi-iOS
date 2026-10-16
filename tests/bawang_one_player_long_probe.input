@@ -1,0 +1,46 @@
+# Select scenario two, enter 01 players, confirm Yuan Shu, and inspect the turn.
+WAIT 2699
+SCREENSHOT bawang_intro_frame2700.png
+WAIT 3301
+HOLD START
+WAIT 90
+RELEASE START
+WAIT 910
+PRESS DOWN 2
+WAIT 90
+PRESS C 2
+WAIT 600
+SCREENSHOT bawang_one_player_before.png
+PRESS RIGHT 2
+WAIT 90
+PRESS UP 2
+WAIT 90
+SCREENSHOT bawang_one_player_01.png
+PRESS C 2
+WAIT 600
+SCREENSHOT bawang_one_player_ruler_menu.png
+PRESS C 2
+WAIT 900
+SCREENSHOT bawang_one_player_ruler_confirm.png
+PRESS C 2
+WAIT 900
+SCREENSHOT bawang_one_player_after_confirm.png
+PRESS C 2
+WAIT 900
+SCREENSHOT bawang_one_player_after_all_confirm.png
+PRESS UP 2
+WAIT 90
+SCREENSHOT bawang_one_player_difficulty_1.png
+PRESS C 2
+WAIT 900
+SCREENSHOT bawang_one_player_after_difficulty.png
+PRESS C 2
+WAIT 900
+SCREENSHOT bawang_one_player_after_battle_view.png
+PRESS C 2
+WAIT 1200
+SCREENSHOT bawang_one_player_game_start.png
+WAIT 1400
+SCREENSHOT bawang_one_player_event.png
+WAIT 4000
+SCREENSHOT bawang_one_player_late_turn.png
