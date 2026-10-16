@@ -1,5 +1,5 @@
 diff --git a/runner/cosim.c b/runner/cosim.c
-index 618a9bd..ac690d7 100644
+index 618a9bd..796d27a 100644
 --- a/runner/cosim.c
 +++ b/runner/cosim.c
 @@ -22,6 +22,7 @@ extern int      glue_cosim_vint_latched(void);
@@ -10,7 +10,36 @@ index 618a9bd..ac690d7 100644
  
  #ifdef _WIN32
    #include <winsock2.h>
-@@ -75,12 +76,11 @@ static uint64_t s_start_frame = 0;    /* FRAME mode: free-run this many frames
+@@ -53,6 +54,28 @@ extern uint64_t audio_event_cosim_hist_total(void);                 /* event_que
+ uint64_t g_cosim_cycle   = 0;
+ uint64_t g_cosim_next_cp = 0;
+ 
++/* Opt-in instruction stream around one host frame. This is diagnostic only:
++ * both generated C and the reference interpreter call it before execution. */
++void genesis_cosim_trace_instruction(uint32_t pc)
++{
++    static int configured = 0;
++    static uint64_t frame = 0;
++    static unsigned count = 0;
++    if (!configured) {
++        const char *value = getenv("GENESIS_COSIM_TRACE_FRAME");
++        frame = value ? strtoull(value, NULL, 0) : UINT64_MAX;
++        configured = 1;
++    }
++    if (g_frame_count < frame || g_frame_count > frame + 1 || count >= 100000)
++        return;
++    fprintf(stderr, "[INSN] #%u frame=%llu pc=%06X cyc=%llu sr=%04X "
++            "d0=%08X d1=%08X d2=%08X a0=%08X a6=%08X a7=%08X\n",
++            ++count, (unsigned long long)g_frame_count, pc & 0xFFFFFFu,
++            (unsigned long long)g_cosim_cycle, g_cpu.SR,
++            g_cpu.D[0], g_cpu.D[1], g_cpu.D[2], g_cpu.A[0],
++            g_cpu.A[6], g_cpu.A[7]);
++}
++
+ /* --- checkpoint / lockstep state ----------------------------------------- */
+ /* Two checkpoint clocks under one park mechanism:
+  *   FRAME (default): keyed on g_machine.master_cycle, which machine_run_frame
+@@ -75,12 +98,11 @@ static uint64_t s_start_frame = 0;    /* FRAME mode: free-run this many frames
                                        /* before the first checkpoint (skip past */
                                        /* a known-divergent prologue, e.g. the   */
                                        /* Sega scream — psxrecomp --start-cycle). */
@@ -28,7 +57,7 @@ index 618a9bd..ac690d7 100644
  static int      s_active    = 0;
  
  /* last checkpoint's computed state (served while parked — no live race) */
-@@ -94,8 +94,8 @@ static CosimSubHashes s_last_sub;
+@@ -94,8 +116,8 @@ static CosimSubHashes s_last_sub;
   * so there is no park race (an earlier `s_parked && s_budget<=0` scheme, with
   * s_budget written by both sides, skipped checkpoints under wall-timing and
   * skewed the cp ordinals — a harness nondeterminism, not a guest one). */
@@ -39,7 +68,7 @@ index 618a9bd..ac690d7 100644
  
  /* bounded reporting ring */
  #define RING_N 8192u   /* power of two */
-@@ -251,6 +251,27 @@ static void handle(sock_t c, char *line) {
+@@ -251,6 +273,27 @@ static void handle(sock_t c, char *line) {
              off += snprintf(out+off, sizeof out-off, " a%d %08x", i, g_cpu.A[i]);
          off += snprintf(out+off, sizeof out-off, "\n");
          send_str(c, out);
@@ -67,7 +96,7 @@ index 618a9bd..ac690d7 100644
      } else if (!strncmp(line, "inject ram ", 11)) {
          unsigned addr, xorv;
          if (sscanf(line + 11, "%x %x", &addr, &xorv) == 2)
-@@ -398,12 +419,15 @@ void cosim_init(void) {
+@@ -398,12 +441,15 @@ void cosim_init(void) {
       * known-divergent prologue like the Sega scream to probe the steady state). */
      const char *esf = getenv("GENESIS_COSIM_START_FRAME");
      s_start_frame = (esf && *esf) ? strtoull(esf, 0, 10) : 0;
@@ -181,15 +210,17 @@ index 2f617bc..d924af0 100644
      bus_ring_push(byte_addr, 5);
      /* 32-bit write = two consecutive 16-bit writes. Only matters for FM
 diff --git a/runner/include/genesis_runtime.h b/runner/include/genesis_runtime.h
-index fcefe72..144dd04 100644
+index fcefe72..c4dad3e 100644
 --- a/runner/include/genesis_runtime.h
 +++ b/runner/include/genesis_runtime.h
-@@ -239,10 +239,13 @@ extern uint32_t g_audio_cycle_counter;
+@@ -239,10 +239,15 @@ extern uint32_t g_audio_cycle_counter;
  #ifdef GENESIS_COSIM
  extern uint64_t g_cosim_cycle;      /* monotonic; never resets (unlike g_audio) */
  extern uint64_t g_cosim_next_cp;    /* next checkpoint boundary                 */
 +extern uint32_t g_native_trace_pc;  /* last generated instruction (diagnostics) */
-+#define GEN_COSIM_INSN_PC(pc) (g_native_trace_pc = (uint32_t)(pc))
++void genesis_cosim_trace_instruction(uint32_t pc);
++#define GEN_COSIM_INSN_PC(pc) do { g_native_trace_pc = (uint32_t)(pc); \
++    genesis_cosim_trace_instruction((uint32_t)(pc)); } while (0)
  void cosim_checkpoint(void);        /* hash + park; advances g_cosim_next_cp    */
  #define GEN_COSIM_TICK(n) do { g_cosim_cycle += (uint64_t)(n); \
      if (g_cosim_cycle >= g_cosim_next_cp) cosim_checkpoint(); } while (0)
@@ -199,10 +230,20 @@ index fcefe72..144dd04 100644
  #endif
  
 diff --git a/runner/m68k_interp.c b/runner/m68k_interp.c
-index 6fb8213..877d5b6 100644
+index 6fb8213..017d07f 100644
 --- a/runner/m68k_interp.c
 +++ b/runner/m68k_interp.c
-@@ -1471,8 +1471,7 @@ M68kiStatus m68k_interp_run_handler(uint32_t entry_pc) {
+@@ -1301,6 +1301,9 @@ M68kiStatus m68k_interp_step(void) {
+     uint32_t pc = g_cpu.PC & 0xFFFFFFu;
+     if (!pc_fetchable(pc)) { g_m68ki_bad_pc = pc; return M68KI_HALT_BADADDR; }
+     if (interp_game_hook(pc)) { g_cpu.PC = pop32() & 0xFFFFFFu; return M68KI_OK; }
++#ifdef GENESIS_COSIM
++    genesis_cosim_trace_instruction(pc);
++#endif
+ 
+     M68KInstr ins;
+     if (!m68k_decode(busview(), pc, &ins)) {
+@@ -1471,8 +1474,7 @@ M68kiStatus m68k_interp_run_handler(uint32_t entry_pc) {
              return M68KI_HALT_UNIMPL;
          }
  
@@ -212,7 +253,7 @@ index 6fb8213..877d5b6 100644
  
          uint32_t next;
          s_illegal_ea = 0;
-@@ -1484,6 +1483,7 @@ M68kiStatus m68k_interp_run_handler(uint32_t entry_pc) {
+@@ -1484,6 +1486,7 @@ M68kiStatus m68k_interp_run_handler(uint32_t entry_pc) {
          }
          g_cpu.PC = next & 0xFFFFFFu;
          interp_account_cycles(&ins);
