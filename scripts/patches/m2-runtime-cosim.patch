@@ -1,8 +1,16 @@
 diff --git a/runner/cosim.c b/runner/cosim.c
-index 618a9bd..796d27a 100644
+index 618a9bd..f0269bb 100644
 --- a/runner/cosim.c
 +++ b/runner/cosim.c
-@@ -22,6 +22,7 @@ extern int      glue_cosim_vint_latched(void);
+@@ -11,6 +11,7 @@
+  * parked. See DIFFERENTIAL-COSIMULATION.md + the GENESIS proposal.
+  */
+ #include "cosim.h"
++#include "glue.h"
+ #include "include/genesis_runtime.h"   /* g_cpu, g_cosim_cycle/next_cp, proto */
+ /* The timingfields/vdpfields drill commands + the full-state hash read the own-
+  * backend globals (g_machine/GVDP), which don't exist in the oracle build. */
+@@ -22,6 +23,7 @@ extern int      glue_cosim_vint_latched(void);
  #include <stdio.h>
  #include <stdlib.h>
  #include <string.h>
@@ -10,7 +18,7 @@ index 618a9bd..796d27a 100644
  
  #ifdef _WIN32
    #include <winsock2.h>
-@@ -53,6 +54,28 @@ extern uint64_t audio_event_cosim_hist_total(void);                 /* event_que
+@@ -53,6 +55,38 @@ extern uint64_t audio_event_cosim_hist_total(void);                 /* event_que
  uint64_t g_cosim_cycle   = 0;
  uint64_t g_cosim_next_cp = 0;
  
@@ -18,6 +26,16 @@ index 618a9bd..796d27a 100644
 + * both generated C and the reference interpreter call it before execution. */
 +void genesis_cosim_trace_instruction(uint32_t pc)
 +{
++    /* Bawang's $938 loop polls ($2B,A5); it is not the generator's canonical
++     * WaitForVBlank stub. Observe its real enter/exit without changing it. */
++    static int m2_wait_938;
++    if (pc == 0x000938u && !m2_wait_938) {
++        m2_wait_938 = 1;
++        glue_m2_irq_trace("wait_938_enter", 0);
++    } else if (pc == 0x00093Eu && m2_wait_938) {
++        m2_wait_938 = 0;
++        glue_m2_irq_trace("wait_938_resume", 0);
++    }
 +    static int configured = 0;
 +    static uint64_t frame = 0;
 +    static unsigned count = 0;
@@ -39,7 +57,7 @@ index 618a9bd..796d27a 100644
  /* --- checkpoint / lockstep state ----------------------------------------- */
  /* Two checkpoint clocks under one park mechanism:
   *   FRAME (default): keyed on g_machine.master_cycle, which machine_run_frame
-@@ -75,12 +98,11 @@ static uint64_t s_start_frame = 0;    /* FRAME mode: free-run this many frames
+@@ -75,12 +109,11 @@ static uint64_t s_start_frame = 0;    /* FRAME mode: free-run this many frames
                                        /* before the first checkpoint (skip past */
                                        /* a known-divergent prologue, e.g. the   */
                                        /* Sega scream — psxrecomp --start-cycle). */
@@ -57,7 +75,7 @@ index 618a9bd..796d27a 100644
  static int      s_active    = 0;
  
  /* last checkpoint's computed state (served while parked — no live race) */
-@@ -94,8 +116,8 @@ static CosimSubHashes s_last_sub;
+@@ -94,8 +127,8 @@ static CosimSubHashes s_last_sub;
   * so there is no park race (an earlier `s_parked && s_budget<=0` scheme, with
   * s_budget written by both sides, skipped checkpoints under wall-timing and
   * skewed the cp ordinals — a harness nondeterminism, not a guest one). */
@@ -68,7 +86,7 @@ index 618a9bd..796d27a 100644
  
  /* bounded reporting ring */
  #define RING_N 8192u   /* power of two */
-@@ -251,6 +273,27 @@ static void handle(sock_t c, char *line) {
+@@ -251,6 +284,27 @@ static void handle(sock_t c, char *line) {
              off += snprintf(out+off, sizeof out-off, " a%d %08x", i, g_cpu.A[i]);
          off += snprintf(out+off, sizeof out-off, "\n");
          send_str(c, out);
@@ -96,7 +114,7 @@ index 618a9bd..796d27a 100644
      } else if (!strncmp(line, "inject ram ", 11)) {
          unsigned addr, xorv;
          if (sscanf(line + 11, "%x %x", &addr, &xorv) == 2)
-@@ -398,12 +441,15 @@ void cosim_init(void) {
+@@ -398,12 +452,15 @@ void cosim_init(void) {
       * known-divergent prologue like the Sega scream to probe the steady state). */
      const char *esf = getenv("GENESIS_COSIM_START_FRAME");
      s_start_frame = (esf && *esf) ? strtoull(esf, 0, 10) : 0;
@@ -114,7 +132,7 @@ index 618a9bd..796d27a 100644
  #ifdef _WIN32
      WSADATA wsa; WSAStartup(MAKEWORD(2,2), &wsa);
 diff --git a/runner/glue.c b/runner/glue.c
-index 2f617bc..d924af0 100644
+index 2f617bc..9ba7f4c 100644
 --- a/runner/glue.c
 +++ b/runner/glue.c
 @@ -102,6 +102,22 @@ static int s_vblank_executed_this_frame = 0; /* did the recompiled VBla body
@@ -152,16 +170,149 @@ index 2f617bc..d924af0 100644
      static uint32_t s_reported_addr;
      uint32_t exit_pc = 0;
      M68kiStatus st = m68k_interp_run_ram_handler(addr, &exit_pc);
-@@ -843,6 +864,8 @@ static void own_deliver_vint(GVDP *vdp)
+@@ -460,7 +481,9 @@ GlueYieldSite glue_yield_site(void) { return s_yield_site; }
+ static void yield_to_main(GlueYieldSite site)
+ {
+     s_yield_site = site;
++    glue_m2_irq_trace("fiber_yield", (int)site);
+     fiber_switch(s_main_fiber);
++    glue_m2_irq_trace("fiber_resume", (int)site);
+ }
+ 
+ /* Engine-owned game fiber stack: fully committed, guard page below, never
+@@ -502,7 +525,7 @@ static void game_stack_note(const char *reason, const void *stack_marker)
+     }
+ }
+ 
+-static void check_cycle_budget(void);   /* fwd: defined below, drains the chunk budget */
++static void check_cycle_budget(void); /* drains chunk budget */
+ 
+ /* GENESIS_FORCE_INTERP (env): make the game fiber interpret the WHOLE program
+  * via m68k_interp. In a co-sim build this is pairing #1 B-side; in a normal
+@@ -674,6 +697,42 @@ static int     s_interleave_active = 0;
+ 
+ /* Called from DoCycles (inside Iterate). Runs game code for a chunk. */
+ static cc_u32f s_chunk_cycles = 0;  /* budget for current chunk */
++static int s_own_vint_latched = 0;
++static int s_pending_irq = 0;
++
++void glue_m2_irq_trace(const char *event, int level)
++{
++#ifdef GENESIS_COSIM
++    static int configured;
++    static uint64_t first, last;
++    extern unsigned long g_snd_frame;
++    if (!configured) {
++        const char *a = getenv("GENESIS_M2_IRQ_TRACE_START_FRAME");
++        const char *b = getenv("GENESIS_M2_IRQ_TRACE_END_FRAME");
++        first = a ? strtoull(a, NULL, 0) : UINT64_MAX;
++        last = b ? strtoull(b, NULL, 0) : first;
++        configured = 1;
++    }
++    if ((uint64_t)g_snd_frame < first || (uint64_t)g_snd_frame > last)
++        return;
++    fprintf(stderr,
++        "[M2IRQ]\t%s\t%lu\t%u\t%u\t%llu\t%u\t%u\t%d\t%u\t%u\t%d\t%d\t%d\t%d\t%d\t%d\t%04X\t%06X\t%06X\t%06X\t%02X\t%08X\t%08X\n",
++        event, g_snd_frame, g_machine.vdp.scanline, g_machine.master_cycle,
++        (unsigned long long)g_cosim_cycle, g_audio_cycle_counter,
++        g_cycle_accumulator, (int)s_cycle_budget, s_budget_cyc_seen,
++        s_irq_cycle_debt, level, s_own_vint_latched, s_pending_irq,
++        s_game_yielded_vblank, s_in_vblank_service, s_irq_in_progress,
++        g_cpu.SR, g_cpu.PC & 0xFFFFFFu,
++        genesis_force_interp() ? g_cpu.PC & 0xFFFFFFu : g_native_trace_pc & 0xFFFFFFu,
++        g_cpu.A[7] & 0xFFFFFFu, g_ram[0x3Bu],
++        ((uint32_t)g_ram[0x6020] << 24) | ((uint32_t)g_ram[0x6021] << 16) |
++        ((uint32_t)g_ram[0x6022] << 8) | g_ram[0x6023],
++        ((uint32_t)g_ram[0x6046] << 24) | ((uint32_t)g_ram[0x6047] << 16) |
++        ((uint32_t)g_ram[0x6048] << 8) | g_ram[0x6049]);
++#else
++    (void)event; (void)level;
++#endif
++}
+ 
+ void glue_run_game_chunk(cc_u32f cycles)
+ {
+@@ -699,6 +758,7 @@ void glue_run_game_chunk(cc_u32f cycles)
+      * not advance — matching hardware, where the handler occupies the CPU
+      * for those scanlines. */
+     if (s_irq_cycle_debt) {
++        glue_m2_irq_trace("debt_before", 0);
+         if (s_irq_cycle_debt >= cycles) {
+             s_irq_cycle_debt -= (uint32_t)cycles;
+             if (s_irq_cycle_debt == 0)
+@@ -719,10 +779,12 @@ void glue_run_game_chunk(cc_u32f cycles)
+     s_cycle_budget = (int32_t)cycles;
+     s_budget_cyc_seen = g_audio_cycle_counter;  /* drain from here (see check_cycle_budget) */
+     s_interleave_active = 1;
++    glue_m2_irq_trace("chunk_enter", 0);
+     instruction_watchdog_reset();
+     fiber_switch(s_game_fiber);
+     instruction_watchdog_reset();
+     s_interleave_active = 0;
++    glue_m2_irq_trace("chunk_exit", 0);
+ }
+ 
+ /* Called from bus access macro to check the interleave budget (separate
+@@ -758,6 +820,7 @@ static void check_cycle_budget(void)
+             s_cycle_budget -= (int32_t)(now - s_budget_cyc_seen);
+         s_budget_cyc_seen = now;   /* also re-syncs after the per-frame reset */
+         if (s_cycle_budget <= 0) {
++            glue_m2_irq_trace("budget_exhausted", 0);
+             /* This is a real cooperative yield to the scanline scheduler.
+              * Keep the bus watchdog's "without yield" window aligned with
+              * the instruction watchdog, which glue_run_game_chunk resets on
+@@ -797,7 +860,6 @@ void glue_charge_68k_stall(uint32_t cycles)
+  * attract demo down a different branch (GM_Demo vs the oracle's GM_Level) and
+  * desynced VRAM. We now LATCH it and deliver at the next scanline whose mask
+  * permits — see glue_own_vint_service_latched(). */
+-static int s_own_vint_latched = 0;
+ 
+ /* --- STAGE 1: interleaved interrupt delivery (behind GENESIS_INTERLEAVE_IRQ) --
+  * The atomic model runs a V-int/H-int handler to completion on the MAIN fiber
+@@ -810,7 +872,7 @@ static int s_own_vint_latched = 0;
+  * steps -> the game fiber resumes back into the handler. Same interleave the
+  * main program already uses; matches hardware/clownmdemu. Default OFF. */
+ static int s_interleave_irq  = -1;   /* -1 = unread env; 0/1 after */
+-static int s_pending_irq     = 0;    /* level (4/6) flagged by scheduler, run by game fiber */
++/* s_pending_irq is declared with the diagnostic state above. */
+ static int interleave_irq_on(void) {
+     if (s_interleave_irq < 0) {
+         const char *e = getenv("GENESIS_INTERLEAVE_IRQ");
+@@ -836,6 +898,7 @@ extern uint32_t machine_z80_stamp(void);   /* raster cursor, master cycles */
+ 
+ static void own_deliver_vint(GVDP *vdp)
+ {
++    glue_m2_irq_trace("vint_accept", 6);
+     const uint32_t STK = g_game_layout.intr_stack;
+     uint32_t byteoff = (STK - 256u) & 0xFFFFu;
+     uint8_t save[256];
+@@ -843,6 +906,9 @@ static void own_deliver_vint(GVDP *vdp)
      int saved_split_sp_popped = recomp_interrupt_context_enter();
      for (int i = 0; i < 256; i++) save[i] = g_ram[(byteoff + i) & 0xFFFFu];
      g_cpu.A[7] = STK;
 +    g_cpu.A[7] -= 4; m68k_write32(g_cpu.A[7], saved.PC & 0xFFFFFFu);
 +    g_cpu.A[7] -= 2; m68k_write16(g_cpu.A[7], saved.SR);
++    glue_m2_irq_trace("vint_entry", 6);
      s_in_vblank_service = 1;
      uint32_t saved_rebase = g_68k_stamp_rebase;
      g_68k_stamp_rebase = machine_z80_stamp() - g_audio_cycle_counter * 7u;
-@@ -924,6 +947,8 @@ static void own_run_handler_interleaved(int level, GVDP *vdp)
+@@ -865,6 +931,7 @@ static void own_deliver_vint(GVDP *vdp)
+     } else
+     if (g_game_spec.call_vblank) g_game_spec.call_vblank();
+     s_irq_cycle_debt += g_audio_cycle_counter - cyc_before;
++    glue_m2_irq_trace("vint_body_exit", 6);
+     if (s_irq_cycle_debt)
+         s_irq_cycle_debt_level = 6;
+ #ifdef GEN_DEV_TRACE
+@@ -900,6 +967,7 @@ static void own_deliver_vint(GVDP *vdp)
+     s_in_vblank_service = 0;
+     for (int i = 0; i < 256; i++) g_ram[(byteoff + i) & 0xFFFFu] = save[i];
+     g_cpu = saved;
++    glue_m2_irq_trace("vint_restore", 6);
+     recomp_interrupt_context_leave(saved_split_sp_popped);
+     s_game_yielded_vblank = 0;
+ }
+@@ -924,6 +992,8 @@ static void own_run_handler_interleaved(int level, GVDP *vdp)
      int saved_split_sp_popped = recomp_interrupt_context_enter();
      for (int i = 0; i < 256; i++) save[i] = g_ram[(byteoff + i) & 0xFFFFu];
      g_cpu.A[7] = STK;
@@ -170,7 +321,31 @@ index 2f617bc..d924af0 100644
      g_cpu.SR = (uint16_t)((g_cpu.SR & ~0x0700u) | ((uint16_t)(level & 7) << 8));
      s_irq_in_progress = 1;
      uint8_t saved_vb = vdp->in_vblank; vdp->in_vblank = 1;
-@@ -1006,6 +1031,8 @@ void glue_own_interrupt(int level, GVDP *vdp)
+@@ -948,6 +1018,7 @@ static void own_run_handler_interleaved(int level, GVDP *vdp)
+ void glue_own_interrupt(int level, GVDP *vdp)
+ {
+     if (!s_game_running) return;
++    if (level == 6) glue_m2_irq_trace("vint_assert", level);
+     /* An interleaved handler is already running on the game fiber (the scheduler
+      * is crossing raster lines DURING it). Do not start another delivery — latch
+      * a crossing V-int and let it deliver after the current handler RTEs. (SR
+@@ -978,6 +1049,7 @@ void glue_own_interrupt(int level, GVDP *vdp)
+              * (game not parked) still uses the atomic path below — no regression
+              * for lag-frame V-ints. */
+             if (interleave_irq_on() && s_game_yielded_vblank) {
++                glue_m2_irq_trace("vint_pending", 6);
+                 s_pending_irq = 6;
+                 s_game_yielded_vblank = 0;   /* let glue_run_game_chunk resume the fiber */
+             } else {
+@@ -985,6 +1057,7 @@ void glue_own_interrupt(int level, GVDP *vdp)
+             }
+         }
+         else           {
++            glue_m2_irq_trace("vint_latch", 6);
+ #ifdef GEN_DEV_TRACE
+             /* [VINT-MASK] V-int latched because the main-context 68K has IRQs
+              * masked at the vblank line. Consecutive masked frames merge into
+@@ -1006,6 +1079,8 @@ void glue_own_interrupt(int level, GVDP *vdp)
          int saved_split_sp_popped = recomp_interrupt_context_enter();
          for (int i = 0; i < 256; i++) save[i] = g_ram[(byteoff + i) & 0xFFFFu];
          g_cpu.A[7] = STK;
@@ -179,7 +354,31 @@ index 2f617bc..d924af0 100644
          s_in_vblank_service = 1;
          /* Same audio-stamp re-base as own_deliver_vint: H-int handler chip
           * writes stamp at the delivery raster, not the parked counter. */
-@@ -1707,6 +1734,9 @@ uint32_t m68k_read32(uint32_t byte_addr)
+@@ -1044,6 +1119,7 @@ int glue_own_vint_service_latched(GVDP *vdp)
+      * glue_own_interrupt). Debt is still charged/drained for cycle stamping. */
+     if (((g_cpu.SR >> 8) & 7) >= 6) return 0;   /* still masked — keep latched */
+     s_own_vint_latched = 0;
++    glue_m2_irq_trace("vint_unlatch", 6);
+     own_deliver_vint(vdp);
+     return 1;
+ }
+@@ -1587,6 +1663,7 @@ static inline void spin_check(uint32_t byte_addr, int is_write)
+     }
+     if (byte_addr == s_spin_addr) {
+         if (++s_spin_count > SPIN_YIELD_THRESHOLD) {
++            glue_m2_irq_trace("spin_threshold", (int)(byte_addr & 0xFFFFFFu));
+             /* Yield to the main fiber so DoCycles ticks clownmdemu;
+              * resume returns here and the subsequent read sees a
+              * possibly-updated value. Reset the streak so we don't
+@@ -1664,6 +1741,7 @@ uint8_t m68k_read8(uint32_t byte_addr)
+                 s_z80poll_streak    = 1;
+             }
+             { extern unsigned long g_z80poll_yields; g_z80poll_yields++; } /* [POLL-DIAG] */
++            glue_m2_irq_trace("z80_poll", (int)(byte_addr & 0xFFFFFFu));
+             { char stack_marker; game_stack_note("z80-poll", &stack_marker); }
+             yield_to_main(GLUE_YIELD_Z80POLL);
+             /* fall through to real read */
+@@ -1707,6 +1785,9 @@ uint32_t m68k_read32(uint32_t byte_addr)
  void m68k_write16(uint32_t byte_addr, uint16_t val)
  {
      byte_addr &= 0xFFFFFFu;
@@ -189,7 +388,7 @@ index 2f617bc..d924af0 100644
      watchdog_check(byte_addr, 1, val);
      bus_ring_push(byte_addr, 4);
      /* 16-bit FM writes land one byte per port per cycle on hardware. The
-@@ -1725,6 +1755,9 @@ void m68k_write16(uint32_t byte_addr, uint16_t val)
+@@ -1725,6 +1806,9 @@ void m68k_write16(uint32_t byte_addr, uint16_t val)
  void m68k_write8(uint32_t byte_addr, uint8_t val)
  {
      byte_addr &= 0xFFFFFFu;
@@ -199,7 +398,7 @@ index 2f617bc..d924af0 100644
      watchdog_check(byte_addr, 1, val);
      bus_ring_push(byte_addr, 3);
      audio_detour_write(byte_addr, val);
-@@ -1744,6 +1777,9 @@ void m68k_write8(uint32_t byte_addr, uint8_t val)
+@@ -1744,6 +1828,9 @@ void m68k_write8(uint32_t byte_addr, uint8_t val)
  void m68k_write32(uint32_t byte_addr, uint32_t val)
  {
      byte_addr &= 0xFFFFFFu;
@@ -209,11 +408,33 @@ index 2f617bc..d924af0 100644
      watchdog_check(byte_addr, 1, (uint32_t)(val >> 16));
      bus_ring_push(byte_addr, 5);
      /* 32-bit write = two consecutive 16-bit writes. Only matters for FM
+diff --git a/runner/glue.h b/runner/glue.h
+index 78f00b8..e3899e1 100644
+--- a/runner/glue.h
++++ b/runner/glue.h
+@@ -45,6 +45,9 @@ void glue_restart_game_fiber(uint32_t resume_pc);
+  * calls this immediately before machine_run_frame(). */
+ void glue_sched_frame_begin(void);
+ 
++/* Opt-in M2 scanline/interrupt diagnostic. Empty outside GENESIS_COSIM. */
++void glue_m2_irq_trace(const char *event, int level);
++
+ /* Why the game fiber last switched to the scheduler. Recorded immediately
+  * before every game->main switch, so while the game fiber is suspended it
+  * names the yield point it will resume from. Part of the rollback
 diff --git a/runner/include/genesis_runtime.h b/runner/include/genesis_runtime.h
-index fcefe72..c4dad3e 100644
+index fcefe72..85b2b90 100644
 --- a/runner/include/genesis_runtime.h
 +++ b/runner/include/genesis_runtime.h
-@@ -239,10 +239,15 @@ extern uint32_t g_audio_cycle_counter;
+@@ -225,6 +225,7 @@ void glue_check_vblank(void);
+  * register writes onto the cycle-stamped event queue consumed by the
+  * audio mixer (runner/audio/). Defined in runner/glue.c. */
+ extern uint32_t g_audio_cycle_counter;
++void glue_m2_irq_trace(const char *event, int level);
+ 
+ /* ---- Differential co-simulation per-instruction checkpoint hook ----------
+  * GEN_COSIM_TICK(n) is emitted per instruction by the generator
+@@ -239,10 +240,15 @@ extern uint32_t g_audio_cycle_counter;
  #ifdef GENESIS_COSIM
  extern uint64_t g_cosim_cycle;      /* monotonic; never resets (unlike g_audio) */
  extern uint64_t g_cosim_next_cp;    /* next checkpoint boundary                 */
@@ -261,3 +482,23 @@ index 6fb8213..017d07f 100644
          if (ins.mnemonic == MN_JSR || ins.mnemonic == MN_BSR)
              depth++;
          else if (ins.mnemonic == MN_RTS || ins.mnemonic == MN_RTR)
+diff --git a/runner/video/genesis_machine.c b/runner/video/genesis_machine.c
+index ac1d5e2..9b37020 100644
+--- a/runner/video/genesis_machine.c
++++ b/runner/video/genesis_machine.c
+@@ -4,6 +4,7 @@
+  * Z80, and our VDP, delivering V/H interrupts. Original implementation.
+  */
+ #include "genesis_machine.h"
++#include "../glue.h"
+ #ifdef GENESIS_Z80_RECOMP
+ #include "../z80_recomp.h"
+ #endif
+@@ -475,6 +476,7 @@ void machine_run_frame(GenesisScanlineSink sink, void *user)
+ 
+     for (int line = 0; line < LINES_TOTAL; line++) {
+         unsigned irq = gvdp_begin_scanline(&m->vdp, line);
++        glue_m2_irq_trace("scanline", 0);
+         g_snd_line = (unsigned)line;   /* [SND-TRACE] */
+         s_line_base = (uint32_t)line * MASTER_PER_LINE;
+         s_z80_off   = 0;   /* 68K writes during the chunk below land at the line start */

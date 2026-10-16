@@ -70,3 +70,13 @@ if __name__ == "__main__":
     run("player count and ruler selection", "recomp", "interp",
         1, 820, start_frame=7680, clock="frame", subs="cpu68k,timing,vdp",
         input_script="tests/bawang_player_count_only.input", benchmark=True)
+    # $039A7A MOVE.L (SP)+,D2 consumes a data argument, not the JSR return.
+    # The old wrapper propagated _sp_popped and resumed at the wrong PC.
+    run("data stack pop and JSR return", "recomp", "interp",
+        1, 500, start=1858657800, subs="cpu68k,timing,vdp",
+        input_script="tests/bawang_one_player_command_probe.input", benchmark=True)
+    # Includes the former $004E96 false IRQ-poll yield, the first turn,
+    # command-category navigation, and the country-information report.
+    run("Yuan Shu turn and command", "recomp", "interp",
+        1, 8800, start_frame=14330, clock="frame", subs="cpu68k,timing,vdp",
+        input_script="tests/bawang_one_player_command_probe.input", benchmark=True)

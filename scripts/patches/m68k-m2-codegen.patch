@@ -1,8 +1,27 @@
 diff --git a/profiles/genesis/code_generator.c b/profiles/genesis/code_generator.c
-index 86f6078..8791505 100644
+index 86f6078..6ec2257 100644
 --- a/profiles/genesis/code_generator.c
 +++ b/profiles/genesis/code_generator.c
-@@ -2344,6 +2344,10 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+@@ -341,15 +341,9 @@ void codegen_set_dump_functions_path(const char *path) {
+     s_dump_functions_path = path;
+ }
+ 
+-/*
+- * Set by the per-instruction emit loop just before processing a Bcc
+- * that's part of a hardware-flag spin idiom (tst.X mem; bcc self). The
+- * Bcc handler then emits glue_yield_for_interrupt_poll() inside the goto
+- * branch so the spin yields once per actual loop iteration without
+- * paying yield cost on the fall-through path. Reset by the Bcc handler
+- * after consuming. Module-global rather than parameter so the existing
+- * emit_instr signature stays unchanged.
+- */
++/* Recomputed for each instruction at its emit site. A flag carried from an
++ * earlier TST (or another function) inserts a fiber yield into unrelated
++ * branches, including Bawang's MOVE.B (A0)+ / BNE string scans. */
+ static bool g_yield_in_next_bne = false;
+ 
+ static const char *size_write_fn(M68KSize sz) {
+@@ -2344,6 +2338,10 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
  
      /* ------------------------------------------------------------------ */
      case MN_RTS:
@@ -13,7 +32,27 @@ index 86f6078..8791505 100644
          /* A stack skip can discard MORE than one return slot (SMPS's
           * stop-track command uses addq.w #8,sp). Carry the complete count
           * through the C callers; a boolean loses the second unwind and
-@@ -2499,6 +2503,7 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+@@ -2427,13 +2425,16 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+     /* ------------------------------------------------------------------ */
+     case MN_RTR:
+         /* Pop CCR (low byte of pushed word) then PC, like RTE but only
+-         * the user-visible CCR bits get restored. Mirrors the RTE
+-         * propagation idiom so unwind reaches the original caller. */
++         * the user-visible CCR bits get restored. Unlike RTE this can be
++         * a subroutine return (e.g. a PHP/PLP-style CCR wrapper). The guest
++         * return PC is already popped here, so the generated JSR caller
++         * observes slot_sp+4 and resumes after the call. Propagating
++         * g_rte_pending would incorrectly unwind that caller as well. */
+         fprintf(f, "  { uint16_t _ccrw = (uint16_t)m68k_read16(g_cpu.A[7]); g_cpu.A[7] += 2;\n");
+         fprintf(f, "    g_cpu.SR = (uint16_t)((g_cpu.SR & 0xFF00u) | (_ccrw & 0x00FFu)); }\n");
+         fprintf(f, "  g_cpu.PC = m68k_read32(g_cpu.A[7]); g_cpu.A[7] += 4;\n");
+         emit_cycle_accounting(f, "  ", estimate_cycles(instr));
+-        fprintf(f, "  g_rte_pending = 1; return; /* RTR */\n");
++        fprintf(f, "  return; /* RTR: PC already popped; caller resumes */\n");
+         *skip_until_label = true;
+         break;
+ 
+@@ -2499,6 +2500,7 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
              function_finder_pops_return_unconditionally(rom, instr->target_addr)) {
              fprintf(f, "  recomp_push_return(0x%06Xu); /* JSR push (callee captures return) */\n",
                      ret_addr);
@@ -21,7 +60,7 @@ index 86f6078..8791505 100644
              fprintf(f, "  { int _saved_split_sp_popped = g_split_sp_popped; g_split_sp_popped = 0;\n");
              if (func_is_known(instr->target_addr))
                  fprintf(f, "    recomp_call_func(func_%06X);\n", instr->target_addr);
-@@ -2507,7 +2512,6 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+@@ -2507,7 +2509,6 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
              fprintf(f, "    g_split_sp_popped = _saved_split_sp_popped;\n");
              fprintf(f, "  }\n");
              fprintf(f, "  g_rte_pending = 0; /* callee captured our return; handled here */\n");
@@ -29,7 +68,7 @@ index 86f6078..8791505 100644
              fprintf(f, "  return; /* callee captured return addr: no pop, no fall-through */\n");
              *skip_until_label = true;
              break;
-@@ -2521,6 +2525,7 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+@@ -2521,6 +2522,7 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
          fprintf(f, "  uint32_t _jsr_slot_sp_%06X = g_cpu.A[7];\n", addr);
  
          if (instr->has_target) {
@@ -37,7 +76,7 @@ index 86f6078..8791505 100644
              fprintf(f, "  { int _saved_split_sp_popped = g_split_sp_popped; g_split_sp_popped = 0;\n");
              if (func_is_known(bsr_target))
                  fprintf(f, "    recomp_call_func(func_%06X);\n", bsr_target);
-@@ -2533,6 +2538,7 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+@@ -2533,6 +2535,7 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
                     (mode == 7 && reg <= 3)) {
              char ae[256];
              emit_ea_addr_ex(f, instr, ea, &er, ae, true);
@@ -45,7 +84,7 @@ index 86f6078..8791505 100644
              fprintf(f, "  { int _saved_split_sp_popped = g_split_sp_popped; g_split_sp_popped = 0;\n");
              fprintf(f, "    recomp_call_addr(%s);\n", ae);
              fprintf(f, "    g_split_sp_popped = _saved_split_sp_popped;\n");
-@@ -2541,6 +2547,7 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+@@ -2541,6 +2544,7 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
              codegen_diag_record(CGD_TODO_DYNAMIC_JSR_UNSUPPORTED, addr,
                                  instr->words[0], instr->mnemonic,
                                  func_name, func_addr);
@@ -53,15 +92,27 @@ index 86f6078..8791505 100644
              fprintf(f, "  /* TODO: dynamic JSR/BSR EA %d/%d */\n", mode, reg);
          }
  
-@@ -2578,7 +2585,6 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+@@ -2577,9 +2581,16 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+          * Doing our pop here would double-adjust A7 by +4. Skipping the
           * pop keeps A7 in sync with hardware. Consume one skipped return
           * slot; additional skipped slots continue through outer callers. */
-         fprintf(f, "  if (g_rte_pending) { --g_rte_pending;\n");
+-        fprintf(f, "  if (g_rte_pending) { --g_rte_pending;\n");
 -        emit_cycle_accounting(f, "    ", estimate_cycles(instr));
-         fprintf(f, "    return; } /* RTE/skip propagation (pre-pop) */\n");
+-        fprintf(f, "    return; } /* RTE/skip propagation (pre-pop) */\n");
++        /* A callee may pop a data argument supplied by its caller and then
++         * RTS to this exact JSR return address. Its path-local stack delta
++         * is positive, but no C return frame was skipped. The architectural
++         * return PC, written by RTS, distinguishes that case from an actual
++         * addq/RTS skip of this wrapper. */
++        fprintf(f, "  if (g_rte_pending) {\n");
++        fprintf(f, "    if ((g_cpu.PC & 0xFFFFFFu) == 0x%06Xu)\n", ret_addr);
++        fprintf(f, "      g_rte_pending = 0; /* callee returned here after consuming data */\n");
++        fprintf(f, "    else { --g_rte_pending; return; }\n");
++        fprintf(f, "  } /* RTE/skip propagation (pre-pop) */\n");
          fprintf(f,
                  "  if (g_cpu.A[7] != (uint32_t)(_jsr_slot_sp_%06X + 4u))\n"
-@@ -3275,7 +3281,12 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+                 "    g_cpu.A[7] += 4; /* normal JSR pop */\n"
+@@ -3275,7 +3286,12 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
           * PSGSetFreq — corrupting downstream Bcc paths that read X
           * (squelched notes, drift). */
          ExtReader er2; er_init(&er2, instr);
@@ -75,7 +126,7 @@ index 86f6078..8791505 100644
          fprintf(f, "  g_cpu.SR = (g_cpu.SR & ~0x0Fu) | (1u<<2);\n");
          break;
      }
-@@ -4926,6 +4937,11 @@ bool codegen_emit(const GenesisRom *rom, const FunctionList *funcs,
+@@ -4926,6 +4942,11 @@ bool codegen_emit(const GenesisRom *rom, const FunctionList *funcs,
                      has_sp_adjust = 1;
                      break;
                  }
@@ -87,7 +138,51 @@ index 86f6078..8791505 100644
                  if (pre.size == M68K_SIZE_L && pre.mnemonic == MN_MOVEM) {
                      int dir = (pre.words[0] >> 10) & 1;
                      int mode = (pre.src_ea >> 3) & 7;
-@@ -5086,6 +5102,7 @@ bool codegen_emit(const GenesisRom *rom, const FunctionList *funcs,
+@@ -5056,36 +5077,25 @@ bool codegen_emit(const GenesisRom *rom, const FunctionList *funcs,
+                 continue;
+             }
+ 
+-            /* "Wait for IRQ-cleared flag" idiom — generalization of
+-             * the full WaitForVint pattern. The current instruction is
+-             * `tst.X (mem)` and the NEXT instruction is `bne self`
+-             * (i.e. branches to this tst). On real hardware the IRQ
+-             * handler clears the polled flag asynchronously; in our
+-             * cooperative-fiber model the game thread must yield to
+-             * let the runner advance clownmdemu (which fires the
+-             * H/V-Int handler that clears the flag).
+-             *
+-             * Mark the next bne so its emitter inserts
+-             * glue_yield_for_interrupt_poll() inside the loop-back branch
+-             * (NOT before the tst — yielding on the fall-through path
+-             * is unnecessary and would mark non-VBlank waits as frame
+-             * boundaries).
+-             *
+-             * Examples:
+-             *   Sonic 2 BuildSprites_P2 ($016A7A):
+-             *       tst.w (Hint_flag).w
+-             *       bne.s BuildSprites_P2 */
+-            if (j + 1 < instrs.count && instr.mnemonic == MN_TST) {
+-                M68KInstr next;
+-                if (m68k_decode(rom, instrs.addrs[j + 1], &next) &&
+-                    next.mnemonic == MN_Bcc &&
+-                    next.has_target &&
+-                    next.target_addr == pc) {
++            /* Yield only for an adjacent, stable-memory TST/BNE loop. Decide
++             * at the branch itself so no state leaks past a skipped instruction
++             * or across function boundaries. Postincrement/predecrement TSTs
++             * walk data and must not be treated as fixed-address polling. */
++            g_yield_in_next_bne = false;
++            if (j > 0 && instr.mnemonic == MN_Bcc &&
++                ((instr.words[0] >> 8) & 15) == 6 && instr.has_target &&
++                instr.target_addr == instrs.addrs[j - 1]) {
++                M68KInstr prev;
++                if (m68k_decode(rom, instrs.addrs[j - 1], &prev) &&
++                    prev.mnemonic == MN_TST &&
++                    (prev.src_ea >> 3) != 0 &&
++                    (prev.src_ea >> 3) != 3 &&
++                    (prev.src_ea >> 3) != 4)
+                     g_yield_in_next_bne = true;
+-                }
              }
  
              fprintf(f_func, "  /* $%06X */\n", pc);
@@ -95,7 +190,7 @@ index 86f6078..8791505 100644
              if (s_reverse_debug)
                  fprintf(f_func, "  rdb_on_insn(0x%06Xu);\n", pc);
              emit_instr(f_func, rom, &instr, &instrs, &skip_until_label, &has_sp_adjust,
-@@ -5099,7 +5116,8 @@ bool codegen_emit(const GenesisRom *rom, const FunctionList *funcs,
+@@ -5099,7 +5109,8 @@ bool codegen_emit(const GenesisRom *rom, const FunctionList *funcs,
               * matching the interpreter's interrupt-driven behavior. */
              {
                  int cyc = estimate_cycles(&instr);
@@ -105,3 +200,11 @@ index 86f6078..8791505 100644
              }
  
              /* Two valid entry streams can overlap in ROM. Sorted emission
+@@ -5322,6 +5333,7 @@ bool codegen_emit(const GenesisRom *rom, const FunctionList *funcs,
+         "    g_recomp_tail_frame->pending = 1;\n"
+         "}\n\n"
+         "static void recomp_dispatch_once(uint32_t addr) {\n"
++        "    glue_m2_irq_trace(\"dispatch\", (int)(addr & 0xFFFFFFu));\n"
+         "    addr = recomp_resolve_ram_trampoline(addr);\n"
+         "    if (recomp_dispatch_ram_stub(addr))\n"
+         "        return;\n"

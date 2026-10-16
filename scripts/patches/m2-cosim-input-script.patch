@@ -1,5 +1,5 @@
 diff --git a/tools/genesis_cosim.py b/tools/genesis_cosim.py
-index a2a4312..edb49e9 100644
+index a2a4312..9da8f64 100644
 --- a/tools/genesis_cosim.py
 +++ b/tools/genesis_cosim.py
 @@ -81,7 +81,8 @@ def find_oracle_exe(explicit): # clownmdemu oracle cosim (pairing #2 B-side)
@@ -37,7 +37,29 @@ index a2a4312..edb49e9 100644
                  return s
              except OSError:
                  if self.proc.poll() is not None:
-@@ -193,6 +200,11 @@ def report_divergence(a, b, cp):
+@@ -175,9 +182,18 @@ class Inst:
+     def close(self):
+         try: self.sock.close()
+         except Exception: pass
+-        try: self.proc.terminate()
+-        except Exception: pass
+-        self.log.close()
++        try:
++            if self.proc.poll() is None:
++                self.proc.terminate()
++                try:
++                    self.proc.wait(timeout=2)
++                except subprocess.TimeoutExpired:
++                    self.proc.kill()
++                    self.proc.wait(timeout=2)
++        except ProcessLookupError:
++            pass  # the runner exited between poll and terminate
++        finally:
++            self.log.close()
+ 
+ 
+ def report_divergence(a, b, cp):
+@@ -193,6 +209,11 @@ def report_divergence(a, b, cp):
      for k in ["pc","sr","usp"] + [f"d{i}" for i in range(8)] + [f"a{i}" for i in range(8)]:
          if ca.get(k) != cb.get(k):
              print(f"    {k:<4} {ca.get(k)}  vs  {cb.get(k)}")
@@ -49,7 +71,7 @@ index a2a4312..edb49e9 100644
      print("\n  --- A window (last checkpoints) ---")
      for r in a.window(60): print("   A", r)
      print("  --- B window ---")
-@@ -293,6 +305,10 @@ def main():
+@@ -293,6 +314,10 @@ def main():
      ap.add_argument("--max", type=int, default=2000, help="max checkpoints to compare")
      ap.add_argument("--inject-at", type=int, default=0, help="apply injection at cp K (gate 3)")
      ap.add_argument("--inject", default="", help="reg:IDX:XOR or ram:OFF:XOR")
@@ -60,7 +82,7 @@ index a2a4312..edb49e9 100644
      ap.add_argument("--waitvbl-pc", default="",
                      help="hex PC of the game's WaitForVBla stub (default: game metadata). "
                           "The interp yields there like the recomp, and the "
-@@ -314,6 +330,10 @@ def main():
+@@ -314,6 +339,10 @@ def main():
          ap.error(str(error))
      if not args.waitvbl_pc:
          args.waitvbl_pc = game_waitvbl()
@@ -71,7 +93,7 @@ index a2a4312..edb49e9 100644
  
      # Route each side to the right exe. Pairing #2 (any side == oracle) forces
      # the own-backend side into visible-surface mode so the hashes are comparable.
-@@ -333,9 +353,11 @@ def main():
+@@ -333,9 +362,11 @@ def main():
            + ("  [pairing #2: visible surface]" if pairing2 else ""))
  
      a = Inst("a", exe_for(args.a), args.porta, args.a, args.stride, args.clock,

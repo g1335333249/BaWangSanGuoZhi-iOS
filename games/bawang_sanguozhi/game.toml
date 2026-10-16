@@ -55,5 +55,23 @@ late_extra = [
   0x023B42, 0x023AB8,
   # Longer first-turn trace, frame 18185: MOVEM entry after $024040 RTS.
   0x024042,
+  # First-turn computed JSR targets after return-propagation repair:
+  # $021B50 starts LINK A6,#-4 after $021B4E RTS; $040604 starts PEA #$B.
+  0x021B50, 0x040604,
+  # Native first-turn trace frame 14825: PEA #6 after $0215F2 RTS.
+  0x0215F4,
+  # Yuan Shu command continuation: runtime calls after $011076/$010F6C/
+  # $015FCA RTS; decoded entries start MOVEQ/BSR/MOVEM respectively.
+  0x011078, 0x010F6E, 0x015FCC,
+  # Additional command-screen runtime targets at frames 19668–19843.
+  # The first four follow RTS; $00198E starts MOVE SR,-(SP) after a
+  # branch/NOP sequence (same valid interior-entry idiom as $0019A0).
+  0x01041C, 0x023792, 0x0233E6, 0x02355E, 0x00198E,
+  # Command prompt helpers after $02365A/$0239FA RTS.
+  0x02365C, 0x0239FC,
+  # Country-inspection command: MOVEM entry after $023812 RTS.
+  0x023814,
+  # Follow-on country inspection handler after $0238E6 RTS.
+  0x0238E8,
 ]
 blacklist = []

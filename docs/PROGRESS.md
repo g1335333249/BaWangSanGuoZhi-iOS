@@ -1,6 +1,19 @@
 # 开发进度
 
-版本：0.2.3（2026-10-16，原生新游戏启动进入 194 年地图；回合状态分歧未解决，M2 未通过）
+版本：0.2.4（2026-10-17，原生首回合进入袁术菜单并执行「情報→他國」；M2 启动与首回合菜单路径通过）
+
+## 2026-10-17 M2 中断调度与首回合命令
+
+- 保留原工程、ROM 与 32 分片流程。标准 BIN SHA256 复核为 `e70f0a92c205ea432080cc48c18d1d43b7fc4d45464ed7fb218b119096e7cdd9`。上游主仓库 `f875aa8`，68000 重编译器子模块 `921f67b`；上游代码修改仍由 `scripts/patches/` 中补丁复现，`sh scripts/apply_upstream_patches.sh` 重复运行均报告 already applied。ROM、生成 C、截图和运行日志仅留本地。
+- `$000938` 是 `MOVE.B $2B(A5),D0; BNE $000938` 游戏标志等待循环。它不符合上游 `WaitForVBlank` 特殊函数模式，两条 CPU 路径均逐条执行；`games/bawang_sanguozhi/cosim.json` 的 `waitvbl=0` 保持不变。
+- 新增默认关闭、按帧限定的 `[M2IRQ]` TSV 事件追踪（`GENESIS_M2_IRQ_TRACE_START_FRAME/END_FRAME`），记录扫描线、`master_cycle`、诊断周期、音频周期、CPU 预算、V-int asserted/accepted/entry/exit、等待进入/恢复、SR、A7、当前或最近指令 PC 与关键 RAM 标志。修复前第 13,262 帧 V-int 两路径均在扫描线 224、`master_cycle=3294113968` 接收，A7=`$FFEF7A`、SR=`$2000`；第 13,263 帧扫描线 232，原生在仍有 132 周期预算时额外 `GLUE_YIELD_IRQPOLL`，解释器继续执行至预算耗尽。这才是首个可证明的硬件调度分歧，不是第 13,262 帧逐指令列表表面上的 V-int 顺序差异。
+- 首个分歧对应 ROM `$004E94 MOVE.B (A0)+` / `$004E96 BNE` 数据扫描。生成器 `profiles/genesis/code_generator.c` 的全局 `g_yield_in_next_bne` 从较早的 `TST` 泄漏到无关分支，误把数据扫描当成中断等待并插入 fiber yield。现在只在**相邻、固定内存地址的 `TST` 与回跳 BNE** 处插入该 hook；重生 32 分片，Bawang 生成代码中此类误插入数为 0。没有手改生成 C。
+- 排除上述分歧后，下一处真实差异在 `$039A7A MOVE.L (SP)+,D2` / `$039A7C RTS`：原生包装把数据参数出栈误认为跨层跳过返回地址，去往 `$003B12`；解释器正确返回 `$039D7E`。生成器 JSR 包装现在以已弹出的架构 PC 是否等于该调用预期返回地址判别 `g_rte_pending`，同地址则继续、不同地址才传播提前返回。原有 RTR/RTE、CLR.L 与 JSR/BSR 修复保留。修复后从周期 `1858657800` 起 500 个逐指令 CPU/时序/VDP 检查点零分歧。
+- 对第 14,330 帧至第 23,130 帧的完整单人脚本，原生/解释器逐帧 CPU、时序、VDP Co-Simulation **8,800 个连续检查点零分歧**，覆盖首回合与「情報→他國」指令。修复后第 13,262–13,264 帧 V-int 的 asserted/accepted/handler/等待恢复 **19 个事件**在两后端的硬件时间、诊断时间、预算、SR、A7、RAM 标志完全一致，均在扫描线 224 接收。修复前观察到的 1,976 诊断周期差值不能单独当作 CPU 错误，也不是应硬编码补偿的固定差值；当前同段已消失。
+- 曾实验性加入“仅在指令边界耗尽预算”开关；关掉后相同的 6,500 个连续检查点仍零分歧，20,800 帧原生状态哈希亦相同。已撤销该开关和相关代码，避免把未证实的调度修改带入工程。Co-Simulation 工具的子进程关闭逻辑增加 terminate/wait/kill 兜底，避免诊断运行遗留占用 CPU 的进程。
+- ROM 动态入口实际执行轨迹新增 `$021B50/$040604/$0215F4/$011078/$010F6E/$015FCC/$01041C/$023792/$0233E6/$02355E/$00198E/$02365C/$0239FC/$023814/$0238E8`，逐项核对 ROM 字节与相邻 RTS/分支后加入 `game.toml`。原生 `GENESIS_FLOOR=0` 跑满 20,800 帧为 **0 raw miss events / 0 解释器回退**；日志的 471 次 `hybrid_jmp/call_interpret` 是原生间接分发。进一步 23,100 帧命令脚本为 0 原始缺口、0 回退，488 次原生间接分发。
+- `tests/bawang_one_player_command_probe.input` 使用原版输入走 194 年剧本、玩家数 `01`、袁术、难度/战斗选项、历史事件、回合提示、命令分类、选择国家与「他國」资料画面；每个命令转换留 600 帧稳定时间。画面来自实际 VDP 帧缓冲，截图和哈希保存在本地 `apps/macos/build/`，未提交。原生/原生重复运行与原生/解释器最终命令画面一致。已验证一条情报类回合命令；**消耗行动的内政操作和完整回合推进尚未验证**，属于 M3 后续任务。
+- 构建命令：`cmake --build third_party/segagenesisrecomp/build/recompiler -j4`、`sh scripts/generate.sh`、`cmake --build apps/macos/build-cosim -j4`、`cmake --build apps/macos/build -j4`、`cmake --build games/bawang_sanguozhi/build/native -j4`、`cmake --build games/bawang_sanguozhi/build/ios -j4`，全部成功。上游 `ctest --test-dir third_party/segagenesisrecomp/build/tests --output-on-failure` 为 15/15；项目 `tests/test_m2_cosim.py` 为 10/10，`tests/test_m2_irq_timeline.py`、`tests/test_m2_turn_command.py` 及 `tests/test_m2_menu.py` 均通过。菜单测试只对**明确列出的 10 个动画帧**单独记录相位差，继续严格比较其余 150 个采样哈希与 11 张稳定菜单/游戏截图，并由 8,800 点 Co-Simulation 验证 CPU/VDP 语义。仍无 iOS App/真机结果。
 
 ## 2026-10-16 单人新游戏启动与新分歧
 
@@ -99,9 +112,9 @@ GENESIS_FORCE_INTERP=1 apps/macos/build/BawangMac input/bawang_sanguozhi.bin --m
 
 ## 未解决及下一步
 
-1. 继续协同执行，解决中断异常帧保存 PC 的逐指令一致性；复核 `$003A2A -> $0038A8` 的栈调用链和第 1344 帧 `$00194A` 动态入口后的执行，不修改生成 C。
-2. 运行参考 MD 环境，验证 28 处原有跳转表和剩余间接调用；分类 47 处新自动发现候选，记录动态 PC 覆盖率。
-3. 修复 VDP/中断启动，达到桌面原版标题画面、菜单和新游戏验收；保持解释器回退计数与画面证据。
-4. 桌面流程跑通后再建立 Swift/Metal iOS App、文件导入、SRAM、本机输入和音频；最后检查 iOS 真机及严格无解释器路径。当前无 App、IPA 或真机运行结果。
+1. M3：从袁术「情報→他國」后继续执行一次消耗行动的内政/军事命令及回合推进，逐段对照原生与解释器 CPU/VDP/SRAM；当前只验证首回合菜单和资料查询。
+2. 运行参考 MD 环境，验证 28 处原有跳转表和剩余间接调用；分类新自动发现候选，记录整局动态 PC 覆盖率。当前 23,100 帧 0 分发缺口仅证明所跑路径。
+3. 继续核对中断异常帧的 PC 字节、严格 JSR 栈检查及更长剧情/AI/存档路径；不能以已通过的首回合路径推断整款游戏逻辑均完成静态覆盖。
+4. M3 桌面流程更完整后建立 Swift/Metal iOS App、文件导入、SRAM、本机输入和音频；最后检查 iOS 真机。当前只有 iOS ARM64 静态库，无可安装 App、IPA 或真机运行结果。
 
 上游主仓库及重编译器使用 PolyForm Noncommercial 1.0.0；游戏 ROM 与资源版权需要单独确认。未推送或公开 ROM。
