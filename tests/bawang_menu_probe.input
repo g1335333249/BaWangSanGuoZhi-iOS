@@ -1,0 +1,13 @@
+# Reach the ROM's scenario menu, move once, and select with the MD pad.
+WAIT 6000
+HOLD START
+WAIT 90
+RELEASE START
+WAIT 910
+SCREENSHOT bawang_menu_before.png
+PRESS DOWN 2
+WAIT 90
+SCREENSHOT bawang_menu_down.png
+PRESS A 2
+WAIT 360
+SCREENSHOT bawang_menu_selected.png

@@ -32,5 +32,26 @@ late_extra = [
   0x00069C,
   # Runtime trace at frame 1344: entry begins with MOVE SR,-(SP), ORI #$0700,SR.
   0x00194A,
+  # Start during the opening: valid entries after ROM RTS at $0009F0/$00079E.
+  0x0009F2, 0x0007A0,
+  # C-button menu path: transfer to the copy helper after $000684 RTS.
+  0x000688,
+  # C-button path at frame 7099: aligned LINK A6,#-4 routine.
+  0x00B54E,
+  # Scenario setup frame 7105: status-register save after $0005AE RTS.
+  0x0005B0,
+  # One-player confirmation: ROM $00D4E2 RTS, then MOVEM.L D2-D3,-(SP).
+  # The next independent entry follows ROM $00D56E RTS with JSR $00AB02.
+  0x00D4E4, 0x00D570,
+  # First new-game map, frame 13404 onward: independent ROM entries after
+  # RTS, or branch-over NOP at $00199E/$0019C8; all seen in the native trace.
+  0x000580, 0x03C0D0, 0x0019A0, 0x0019CA,
+  0x016064, 0x0160F0, 0x02434E,
+  # New-game event processing at frames 14537–14545, each after ROM RTS.
+  0x023EF0, 0x023D60, 0x023F5E,
+  # Event helper calls reached after the above entries; all follow RTS.
+  0x010070, 0x023C52, 0x0100AC,
+  # Two more event helpers, observed at frames 14545/14583 after ROM RTS.
+  0x023B42, 0x023AB8,
 ]
 blacklist = []

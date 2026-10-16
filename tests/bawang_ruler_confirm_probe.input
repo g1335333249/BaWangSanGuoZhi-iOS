@@ -1,0 +1,20 @@
+# Earlier exploratory path: Up on the tens digit selects 10 players.
+WAIT 6000
+HOLD START
+WAIT 90
+RELEASE START
+WAIT 910
+PRESS DOWN 2
+WAIT 90
+PRESS C 2
+WAIT 600
+PRESS UP 2
+WAIT 90
+PRESS C 2
+WAIT 600
+PRESS C 2
+WAIT 900
+SCREENSHOT bawang_ruler_confirmation.png
+PRESS C 2
+WAIT 900
+SCREENSHOT bawang_after_ruler_confirmation.png

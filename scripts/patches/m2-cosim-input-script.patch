@@ -1,0 +1,75 @@
+diff --git a/tools/genesis_cosim.py b/tools/genesis_cosim.py
+index a2a4312..6c8cae2 100644
+--- a/tools/genesis_cosim.py
++++ b/tools/genesis_cosim.py
+@@ -81,7 +81,8 @@ def find_oracle_exe(explicit): # clownmdemu oracle cosim (pairing #2 B-side)
+ class Inst:
+     """One cosim process + its control socket."""
+     def __init__(self, name, exe, port, backend, stride, clock, extra_env=None,
+-                 waitvbl_pc="", visible=False):
++                 waitvbl_pc="", visible=False, input_script=None,
++                 benchmark=False):
+         self.name = name
+         exe_dir = os.path.dirname(exe)
+         rom = os.path.join(exe_dir, GAMES[GAME]["rom"])   # per-game read-only ROM
+@@ -114,8 +115,12 @@ class Inst:
+         if extra_env:
+             env.update(extra_env)
+         self.log = open(os.path.join(cwd, f"cosim_{name}.log"), "w")
++        argv = [exe, rom, "--no-launcher"]
++        argv += ["--benchmark", "1000000"] if benchmark else ["--turbo"]
++        if input_script:
++            argv += ["--input-script", input_script]
+         self.proc = subprocess.Popen(
+-            [exe, rom, "--no-launcher", "--turbo"],
++            argv,
+             cwd=cwd, env=env, stdout=self.log, stderr=subprocess.STDOUT)
+         self.sock = self._connect(port)
+         self.buf = b""
+@@ -125,7 +130,9 @@ class Inst:
+         while time.time() - t0 < timeout:
+             try:
+                 s = socket.create_connection(("127.0.0.1", port), timeout=2)
+-                s.settimeout(30)
++                # A first step after a late --start-frame must free-run the
++                # entire opening; a 30s socket deadline aborts valid probes.
++                s.settimeout(300)
+                 return s
+             except OSError:
+                 if self.proc.poll() is not None:
+@@ -293,6 +300,10 @@ def main():
+     ap.add_argument("--max", type=int, default=2000, help="max checkpoints to compare")
+     ap.add_argument("--inject-at", type=int, default=0, help="apply injection at cp K (gate 3)")
+     ap.add_argument("--inject", default="", help="reg:IDX:XOR or ram:OFF:XOR")
++    ap.add_argument("--input-script", default="",
++                    help="same absolute runner .input script for both peers")
++    ap.add_argument("--runner-benchmark", action="store_true",
++                    help="run both peers uncapped with the normal core frame workload")
+     ap.add_argument("--waitvbl-pc", default="",
+                     help="hex PC of the game's WaitForVBla stub (default: game metadata). "
+                          "The interp yields there like the recomp, and the "
+@@ -314,6 +325,10 @@ def main():
+         ap.error(str(error))
+     if not args.waitvbl_pc:
+         args.waitvbl_pc = game_waitvbl()
++    if args.input_script:
++        args.input_script = os.path.abspath(args.input_script)
++        if not os.path.isfile(args.input_script):
++            ap.error(f"input script not found: {args.input_script}")
+ 
+     # Route each side to the right exe. Pairing #2 (any side == oracle) forces
+     # the own-backend side into visible-surface mode so the hashes are comparable.
+@@ -333,9 +348,11 @@ def main():
+           + ("  [pairing #2: visible surface]" if pairing2 else ""))
+ 
+     a = Inst("a", exe_for(args.a), args.porta, args.a, args.stride, args.clock,
+-             waitvbl_pc=args.waitvbl_pc, visible=vis_a)
++             waitvbl_pc=args.waitvbl_pc, visible=vis_a,
++             input_script=args.input_script, benchmark=args.runner_benchmark)
+     b = Inst("b", exe_for(args.b), args.portb, args.b, args.stride, args.clock,
+-             waitvbl_pc=args.waitvbl_pc, visible=vis_b)
++             waitvbl_pc=args.waitvbl_pc, visible=vis_b,
++             input_script=args.input_script, benchmark=args.runner_benchmark)
+ 
+     def do_inject(inst):
+         kind, idx, xor = args.inject.split(":")

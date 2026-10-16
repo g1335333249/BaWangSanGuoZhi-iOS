@@ -1,0 +1,14 @@
+# Identical input without screenshot side effects for co-simulation.
+WAIT 6000
+HOLD START
+WAIT 90
+RELEASE START
+WAIT 910
+PRESS DOWN 2
+WAIT 90
+PRESS C 2
+WAIT 600
+PRESS UP 2
+WAIT 90
+PRESS C 2
+WAIT 1200

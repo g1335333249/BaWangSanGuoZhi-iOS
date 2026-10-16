@@ -1,0 +1,10 @@
+# Shared input for native/interpreter menu selection comparison.
+WAIT 6000
+HOLD START
+WAIT 90
+RELEASE START
+WAIT 910
+PRESS DOWN 2
+WAIT 90
+PRESS C 2
+WAIT 1200

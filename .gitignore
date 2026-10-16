@@ -7,4 +7,5 @@ apps/*/build-*/
 **/.DS_Store
 *.o
 *.bin
+__pycache__/
 .DS_Store

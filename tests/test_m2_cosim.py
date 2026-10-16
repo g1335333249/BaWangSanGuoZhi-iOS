@@ -12,7 +12,8 @@ CONFIG = ROOT / "games/bawang_sanguozhi/cosim.json"
 
 
 def run(name, a, b, stride, count, *, inject=False, start=0,
-        start_frame=0, clock="cycle", subs=None):
+        start_frame=0, clock="cycle", subs=None, input_script=None,
+        benchmark=False):
     ports = 4700 + run.serial * 2
     run.serial += 1
     cmd = [sys.executable, str(TOOL), "--game-config", str(CONFIG),
@@ -23,6 +24,10 @@ def run(name, a, b, stride, count, *, inject=False, start=0,
         cmd += ["--inject-at", "5", "--inject", "reg:0:1"]
     if subs:
         cmd += ["--subs", subs]
+    if input_script:
+        cmd += ["--input-script", str(ROOT / input_script)]
+    if benchmark:
+        cmd += ["--runner-benchmark"]
     env = os.environ.copy()
     if start:
         env["GENESIS_COSIM_START_CYCLE"] = str(start)
@@ -59,3 +64,9 @@ if __name__ == "__main__":
         1, 300, start=165975000, subs="cpu68k,timing,vdp")
     run("dynamic $00194A entry and continuing intro", "recomp", "interp",
         1, 120, start_frame=1330, clock="frame", subs="cpu68k,timing,vdp")
+    run("Start/Down/C scenario selection", "recomp", "interp",
+        1, 180, start_frame=7080, clock="frame", subs="cpu68k,timing,vdp",
+        input_script="tests/bawang_menu_c_only.input", benchmark=True)
+    run("player count and ruler selection", "recomp", "interp",
+        1, 820, start_frame=7680, clock="frame", subs="cpu68k,timing,vdp",
+        input_script="tests/bawang_player_count_only.input", benchmark=True)

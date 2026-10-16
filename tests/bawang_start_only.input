@@ -1,0 +1,6 @@
+# Shared deterministic input for native/interpreter co-simulation.
+WAIT 6000
+HOLD START
+WAIT 90
+RELEASE START
+WAIT 3000

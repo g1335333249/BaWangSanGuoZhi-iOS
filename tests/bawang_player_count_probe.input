@@ -1,0 +1,17 @@
+# Continue from scenario two into the game's player-count prompt.
+WAIT 6000
+HOLD START
+WAIT 90
+RELEASE START
+WAIT 910
+PRESS DOWN 2
+WAIT 90
+PRESS C 2
+WAIT 600
+SCREENSHOT bawang_player_count_before.png
+PRESS UP 2
+WAIT 90
+SCREENSHOT bawang_player_count_up.png
+PRESS C 2
+WAIT 600
+SCREENSHOT bawang_player_count_after.png

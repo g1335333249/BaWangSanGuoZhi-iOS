@@ -1,0 +1,12 @@
+# Select scenario two using the MD C button after an observed Down move.
+WAIT 6000
+HOLD START
+WAIT 90
+RELEASE START
+WAIT 910
+PRESS DOWN 2
+WAIT 90
+SCREENSHOT bawang_menu_c_before.png
+PRESS C 2
+WAIT 600
+SCREENSHOT bawang_menu_c_after.png

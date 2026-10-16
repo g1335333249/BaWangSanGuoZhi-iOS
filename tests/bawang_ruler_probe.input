@@ -1,0 +1,18 @@
+# Advance from scenario/player count to the first playable ruler selection.
+WAIT 6000
+HOLD START
+WAIT 90
+RELEASE START
+WAIT 910
+PRESS DOWN 2
+WAIT 90
+PRESS C 2
+WAIT 600
+PRESS UP 2
+WAIT 90
+PRESS C 2
+WAIT 600
+SCREENSHOT bawang_ruler_before.png
+PRESS C 2
+WAIT 900
+SCREENSHOT bawang_ruler_after.png
