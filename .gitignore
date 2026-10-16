@@ -1,0 +1,10 @@
+input/
+analysis/
+third_party/
+games/*/build/
+apps/*/build/
+apps/*/build-*/
+**/.DS_Store
+*.o
+*.bin
+.DS_Store

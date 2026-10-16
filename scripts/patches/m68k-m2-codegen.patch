@@ -1,0 +1,92 @@
+diff --git a/profiles/genesis/code_generator.c b/profiles/genesis/code_generator.c
+index 86f6078..994a47b 100644
+--- a/profiles/genesis/code_generator.c
++++ b/profiles/genesis/code_generator.c
+@@ -2344,6 +2344,10 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+ 
+     /* ------------------------------------------------------------------ */
+     case MN_RTS:
++        /* Retire the guest return before the per-instruction cycle hook. The
++         * caller's C wrapper must observe the already-popped return slot;
++         * otherwise a VBlank/checkpoint inside this hook sees the wrong A7. */
++        fprintf(f, "  g_cpu.PC = m68k_read32(g_cpu.A[7]); g_cpu.A[7] += 4; /* RTS */\n");
+         /* A stack skip can discard MORE than one return slot (SMPS's
+          * stop-track command uses addq.w #8,sp). Carry the complete count
+          * through the C callers; a boolean loses the second unwind and
+@@ -2499,6 +2503,7 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+             function_finder_pops_return_unconditionally(rom, instr->target_addr)) {
+             fprintf(f, "  recomp_push_return(0x%06Xu); /* JSR push (callee captures return) */\n",
+                     ret_addr);
++            emit_cycle_accounting(f, "  ", estimate_cycles(instr));
+             fprintf(f, "  { int _saved_split_sp_popped = g_split_sp_popped; g_split_sp_popped = 0;\n");
+             if (func_is_known(instr->target_addr))
+                 fprintf(f, "    recomp_call_func(func_%06X);\n", instr->target_addr);
+@@ -2507,7 +2512,6 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+             fprintf(f, "    g_split_sp_popped = _saved_split_sp_popped;\n");
+             fprintf(f, "  }\n");
+             fprintf(f, "  g_rte_pending = 0; /* callee captured our return; handled here */\n");
+-            emit_cycle_accounting(f, "  ", estimate_cycles(instr));
+             fprintf(f, "  return; /* callee captured return addr: no pop, no fall-through */\n");
+             *skip_until_label = true;
+             break;
+@@ -2521,6 +2525,7 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+         fprintf(f, "  uint32_t _jsr_slot_sp_%06X = g_cpu.A[7];\n", addr);
+ 
+         if (instr->has_target) {
++            emit_cycle_accounting(f, "  ", estimate_cycles(instr));
+             fprintf(f, "  { int _saved_split_sp_popped = g_split_sp_popped; g_split_sp_popped = 0;\n");
+             if (func_is_known(bsr_target))
+                 fprintf(f, "    recomp_call_func(func_%06X);\n", bsr_target);
+@@ -2533,6 +2538,7 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+                    (mode == 7 && reg <= 3)) {
+             char ae[256];
+             emit_ea_addr_ex(f, instr, ea, &er, ae, true);
++            emit_cycle_accounting(f, "  ", estimate_cycles(instr));
+             fprintf(f, "  { int _saved_split_sp_popped = g_split_sp_popped; g_split_sp_popped = 0;\n");
+             fprintf(f, "    recomp_call_addr(%s);\n", ae);
+             fprintf(f, "    g_split_sp_popped = _saved_split_sp_popped;\n");
+@@ -2541,6 +2547,7 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+             codegen_diag_record(CGD_TODO_DYNAMIC_JSR_UNSUPPORTED, addr,
+                                 instr->words[0], instr->mnemonic,
+                                 func_name, func_addr);
++            emit_cycle_accounting(f, "  ", estimate_cycles(instr));
+             fprintf(f, "  /* TODO: dynamic JSR/BSR EA %d/%d */\n", mode, reg);
+         }
+ 
+@@ -2578,7 +2585,6 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+          * pop keeps A7 in sync with hardware. Consume one skipped return
+          * slot; additional skipped slots continue through outer callers. */
+         fprintf(f, "  if (g_rte_pending) { --g_rte_pending;\n");
+-        emit_cycle_accounting(f, "    ", estimate_cycles(instr));
+         fprintf(f, "    return; } /* RTE/skip propagation (pre-pop) */\n");
+         fprintf(f,
+                 "  if (g_cpu.A[7] != (uint32_t)(_jsr_slot_sp_%06X + 4u))\n"
+@@ -3275,7 +3281,9 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+          * PSGSetFreq — corrupting downstream Bcc paths that read X
+          * (squelched notes, drift). */
+         ExtReader er2; er_init(&er2, instr);
+-        emit_ea_store_ex(f, instr, instr->src_ea, sz, &er2, "0", 1);
++        /* CLR has no read phase. Treat its destination as a normal store so
++         * -(An) decrements and (An)+ increments exactly once. */
++        emit_ea_store_ex(f, instr, instr->src_ea, sz, &er2, "0", 0);
+         fprintf(f, "  g_cpu.SR = (g_cpu.SR & ~0x0Fu) | (1u<<2);\n");
+         break;
+     }
+@@ -5086,6 +5094,7 @@ bool codegen_emit(const GenesisRom *rom, const FunctionList *funcs,
+             }
+ 
+             fprintf(f_func, "  /* $%06X */\n", pc);
++            fprintf(f_func, "  GEN_COSIM_INSN_PC(0x%06Xu);\n", pc);
+             if (s_reverse_debug)
+                 fprintf(f_func, "  rdb_on_insn(0x%06Xu);\n", pc);
+             emit_instr(f_func, rom, &instr, &instrs, &skip_until_label, &has_sp_adjust,
+@@ -5099,7 +5108,8 @@ bool codegen_emit(const GenesisRom *rom, const FunctionList *funcs,
+              * matching the interpreter's interrupt-driven behavior. */
+             {
+                 int cyc = estimate_cycles(&instr);
+-                emit_cycle_accounting(f_func, "  ", cyc);
++                if (instr.mnemonic != MN_BSR && instr.mnemonic != MN_JSR)
++                    emit_cycle_accounting(f_func, "  ", cyc);
+             }
+ 
+             /* Two valid entry streams can overlap in ROM. Sorted emission

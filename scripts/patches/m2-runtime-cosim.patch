@@ -1,0 +1,194 @@
+diff --git a/runner/cosim.c b/runner/cosim.c
+index 618a9bd..b9f6684 100644
+--- a/runner/cosim.c
++++ b/runner/cosim.c
+@@ -22,6 +22,7 @@ extern int      glue_cosim_vint_latched(void);
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <stdatomic.h>
+ 
+ #ifdef _WIN32
+   #include <winsock2.h>
+@@ -75,12 +76,11 @@ static uint64_t s_start_frame = 0;    /* FRAME mode: free-run this many frames
+                                       /* before the first checkpoint (skip past */
+                                       /* a known-divergent prologue, e.g. the   */
+                                       /* Sega scream — psxrecomp --start-cycle). */
+-/* s_cp is PUBLISHED LAST in do_checkpoint (after s_chain/ring are committed) and
+- * is what the server waits on — so seeing the new s_cp guarantees s_chain is the
+- * matching one. s_chain is volatile so the compiler can't hoist its store past
+- * the s_cp publish (x86 TSO gives the store/load ordering once that's pinned). */
+-static volatile uint64_t s_cp    = 0; /* checkpoint ordinal (published last)    */
+-static volatile uint64_t s_chain = COSIM_FNV_OFFSET;  /* cumulative chain hash  */
++/* The guest publishes s_cp after updating s_chain/ring. The command server
++ * observes it on a separate thread; atomics are required on ARM64 as well as
++ * x86, because volatile does not establish cross-thread ordering. */
++static _Atomic uint64_t s_cp    = 0; /* checkpoint ordinal (published last)    */
++static _Atomic uint64_t s_chain = COSIM_FNV_OFFSET;  /* cumulative chain hash  */
+ static int      s_active    = 0;
+ 
+ /* last checkpoint's computed state (served while parked — no live race) */
+@@ -94,8 +94,8 @@ static CosimSubHashes s_last_sub;
+  * so there is no park race (an earlier `s_parked && s_budget<=0` scheme, with
+  * s_budget written by both sides, skipped checkpoints under wall-timing and
+  * skewed the cp ordinals — a harness nondeterminism, not a guest one). */
+-static volatile uint64_t s_target = 0;    /* run while s_cp < s_target          */
+-static volatile int      s_parked = 0;    /* guest currently in the park spin    */
++static _Atomic uint64_t s_target = 0;    /* run while s_cp < s_target          */
++static _Atomic int      s_parked = 0;    /* guest currently in the park spin    */
+ 
+ /* bounded reporting ring */
+ #define RING_N 8192u   /* power of two */
+@@ -398,12 +398,15 @@ void cosim_init(void) {
+      * known-divergent prologue like the Sega scream to probe the steady state). */
+     const char *esf = getenv("GENESIS_COSIM_START_FRAME");
+     s_start_frame = (esf && *esf) ? strtoull(esf, 0, 10) : 0;
++    const char *esc = getenv("GENESIS_COSIM_START_CYCLE");
++    uint64_t start_cycle = (esc && *esc) ? strtoull(esc, 0, 10) : 0;
+ 
+     g_cosim_cycle = 0;
+     s_frame_ctr = 0;
+     /* In FRAME mode, disarm the per-instruction hook (macro compare never
+      * fires); the frame boundary drives checkpoints instead. */
+-    g_cosim_next_cp = (s_clock == COSIM_CLK_INSN) ? s_stride : UINT64_MAX;
++    g_cosim_next_cp = (s_clock == COSIM_CLK_INSN)
++        ? (start_cycle ? start_cycle : s_stride) : UINT64_MAX;
+ 
+ #ifdef _WIN32
+     WSADATA wsa; WSAStartup(MAKEWORD(2,2), &wsa);
+diff --git a/runner/glue.c b/runner/glue.c
+index 2f617bc..d924af0 100644
+--- a/runner/glue.c
++++ b/runner/glue.c
+@@ -102,6 +102,22 @@ static int s_vblank_executed_this_frame = 0; /* did the recompiled VBla body
+  * compare native per-wall-frame instruction throughput against oracle.
+  * Stays 0 on oracle builds (generated func_* bodies never run there). */
+ uint64_t g_native_insn_count = 0;
++#ifdef GENESIS_COSIM
++int genesis_force_interp(void);
++uint32_t g_native_trace_pc = 0;
++static void trace_ram_code_write(uint32_t addr, unsigned width, uint32_t value)
++{
++    static int count = 0;
++    static int enabled = -1;
++    if (enabled < 0) enabled = getenv("GENESIS_COSIM_TRACE_RAM_CODE") ? 1 : 0;
++    if (!enabled || count >= 32 || addr > 0xFFF009u || addr + width <= 0xFFF000u)
++        return;
++    fprintf(stderr, "[RAMTRACE] #%d pc=$%06X addr=$%06X width=%u value=$%08X cycle=%" PRIu64 " frame=%" PRIu64 " mode=%s\n",
++            ++count, genesis_force_interp() ? g_cpu.PC & 0xFFFFFFu : g_native_trace_pc,
++            addr & 0xFFFFFFu, width, value, g_cosim_cycle, g_frame_count,
++            genesis_force_interp() ? "interp" : "native");
++}
++#endif
+ 
+ /* Cycle-pacing telemetry. Updated once per wall frame in
+  * glue_end_of_wall_frame. cmd_server_record_frame copies this into
+@@ -400,6 +416,11 @@ int recomp_dispatch_ram_stub(uint32_t addr)
+     if (addr < RAM_BASE)
+         return 0;
+ 
++    /* A game may provide a byte-validated static translation of copied WRAM
++     * code. Give it priority; its override can fail closed for unknown bytes. */
++    if (g_game_spec.dispatch_override && g_game_spec.dispatch_override(addr))
++        return 1;
++
+     static uint32_t s_reported_addr;
+     uint32_t exit_pc = 0;
+     M68kiStatus st = m68k_interp_run_ram_handler(addr, &exit_pc);
+@@ -843,6 +864,8 @@ static void own_deliver_vint(GVDP *vdp)
+     int saved_split_sp_popped = recomp_interrupt_context_enter();
+     for (int i = 0; i < 256; i++) save[i] = g_ram[(byteoff + i) & 0xFFFFu];
+     g_cpu.A[7] = STK;
++    g_cpu.A[7] -= 4; m68k_write32(g_cpu.A[7], saved.PC & 0xFFFFFFu);
++    g_cpu.A[7] -= 2; m68k_write16(g_cpu.A[7], saved.SR);
+     s_in_vblank_service = 1;
+     uint32_t saved_rebase = g_68k_stamp_rebase;
+     g_68k_stamp_rebase = machine_z80_stamp() - g_audio_cycle_counter * 7u;
+@@ -924,6 +947,8 @@ static void own_run_handler_interleaved(int level, GVDP *vdp)
+     int saved_split_sp_popped = recomp_interrupt_context_enter();
+     for (int i = 0; i < 256; i++) save[i] = g_ram[(byteoff + i) & 0xFFFFu];
+     g_cpu.A[7] = STK;
++    g_cpu.A[7] -= 4; m68k_write32(g_cpu.A[7], saved.PC & 0xFFFFFFu);
++    g_cpu.A[7] -= 2; m68k_write16(g_cpu.A[7], saved.SR);
+     g_cpu.SR = (uint16_t)((g_cpu.SR & ~0x0700u) | ((uint16_t)(level & 7) << 8));
+     s_irq_in_progress = 1;
+     uint8_t saved_vb = vdp->in_vblank; vdp->in_vblank = 1;
+@@ -1006,6 +1031,8 @@ void glue_own_interrupt(int level, GVDP *vdp)
+         int saved_split_sp_popped = recomp_interrupt_context_enter();
+         for (int i = 0; i < 256; i++) save[i] = g_ram[(byteoff + i) & 0xFFFFu];
+         g_cpu.A[7] = STK;
++        g_cpu.A[7] -= 4; m68k_write32(g_cpu.A[7], saved.PC & 0xFFFFFFu);
++        g_cpu.A[7] -= 2; m68k_write16(g_cpu.A[7], saved.SR);
+         s_in_vblank_service = 1;
+         /* Same audio-stamp re-base as own_deliver_vint: H-int handler chip
+          * writes stamp at the delivery raster, not the parked counter. */
+@@ -1707,6 +1734,9 @@ uint32_t m68k_read32(uint32_t byte_addr)
+ void m68k_write16(uint32_t byte_addr, uint16_t val)
+ {
+     byte_addr &= 0xFFFFFFu;
++#ifdef GENESIS_COSIM
++    trace_ram_code_write(byte_addr, 2, val);
++#endif
+     watchdog_check(byte_addr, 1, val);
+     bus_ring_push(byte_addr, 4);
+     /* 16-bit FM writes land one byte per port per cycle on hardware. The
+@@ -1725,6 +1755,9 @@ void m68k_write16(uint32_t byte_addr, uint16_t val)
+ void m68k_write8(uint32_t byte_addr, uint8_t val)
+ {
+     byte_addr &= 0xFFFFFFu;
++#ifdef GENESIS_COSIM
++    trace_ram_code_write(byte_addr, 1, val);
++#endif
+     watchdog_check(byte_addr, 1, val);
+     bus_ring_push(byte_addr, 3);
+     audio_detour_write(byte_addr, val);
+@@ -1744,6 +1777,9 @@ void m68k_write8(uint32_t byte_addr, uint8_t val)
+ void m68k_write32(uint32_t byte_addr, uint32_t val)
+ {
+     byte_addr &= 0xFFFFFFu;
++#ifdef GENESIS_COSIM
++    trace_ram_code_write(byte_addr, 4, val);
++#endif
+     watchdog_check(byte_addr, 1, (uint32_t)(val >> 16));
+     bus_ring_push(byte_addr, 5);
+     /* 32-bit write = two consecutive 16-bit writes. Only matters for FM
+diff --git a/runner/include/genesis_runtime.h b/runner/include/genesis_runtime.h
+index fcefe72..144dd04 100644
+--- a/runner/include/genesis_runtime.h
++++ b/runner/include/genesis_runtime.h
+@@ -239,10 +239,13 @@ extern uint32_t g_audio_cycle_counter;
+ #ifdef GENESIS_COSIM
+ extern uint64_t g_cosim_cycle;      /* monotonic; never resets (unlike g_audio) */
+ extern uint64_t g_cosim_next_cp;    /* next checkpoint boundary                 */
++extern uint32_t g_native_trace_pc;  /* last generated instruction (diagnostics) */
++#define GEN_COSIM_INSN_PC(pc) (g_native_trace_pc = (uint32_t)(pc))
+ void cosim_checkpoint(void);        /* hash + park; advances g_cosim_next_cp    */
+ #define GEN_COSIM_TICK(n) do { g_cosim_cycle += (uint64_t)(n); \
+     if (g_cosim_cycle >= g_cosim_next_cp) cosim_checkpoint(); } while (0)
+ #else
++#define GEN_COSIM_INSN_PC(pc) ((void)0)
+ #define GEN_COSIM_TICK(n) ((void)0)
+ #endif
+ 
+diff --git a/runner/m68k_interp.c b/runner/m68k_interp.c
+index 6fb8213..877d5b6 100644
+--- a/runner/m68k_interp.c
++++ b/runner/m68k_interp.c
+@@ -1471,8 +1471,7 @@ M68kiStatus m68k_interp_run_handler(uint32_t entry_pc) {
+             return M68KI_HALT_UNIMPL;
+         }
+ 
+-        if (depth == 0 && ins.mnemonic == MN_RTE)
+-            return M68KI_OK;                 /* handler's own return — stop, don't pop */
++        int handler_return = (depth == 0 && ins.mnemonic == MN_RTE);
+ 
+         uint32_t next;
+         s_illegal_ea = 0;
+@@ -1484,6 +1483,7 @@ M68kiStatus m68k_interp_run_handler(uint32_t entry_pc) {
+         }
+         g_cpu.PC = next & 0xFFFFFFu;
+         interp_account_cycles(&ins);
++        if (handler_return) return M68KI_OK;
+         if (ins.mnemonic == MN_JSR || ins.mnemonic == MN_BSR)
+             depth++;
+         else if (ins.mnemonic == MN_RTS || ins.mnemonic == MN_RTR)

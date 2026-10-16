@@ -1,0 +1,32 @@
+# Bawang Sanguozhi / ROMANCE II; input/bawang_sanguozhi.bin
+# SHA256 e70f0a92c205ea432080cc48c18d1d43b7fc4d45464ed7fb218b119096e7cdd9
+# Existing switch-table leads remain candidates until runtime traces verify them.
+
+[game]
+output_prefix = "bawang"
+jump_table_autodiscovery = true
+
+[ram_layout]
+game_mode = 0
+vint_runcount = 0
+vint_routine = 0
+plc_pending = 0
+initial_ssp = 0x00FFF000
+vbla_stack = 0x00FFF000
+intr_stack = 0x00FFF000
+player_object = 0
+level_modes = []
+
+[functions]
+# Reset, reset continuation, main candidate, V interrupt, and H interrupt.
+# The framework also scans the ROM vector table itself.
+extra = [0x000200, 0x000380, 0x0039F4, 0x001130, 0x00112C]
+# Dynamic targets observed in the first 120-frame run. Each address was
+# checked against ROM bytes and the existing 68000 decoder; these are leads,
+# not a claim that each complete body or calling convention is verified.
+late_extra = [
+  0x001970,
+  0x000388, 0x0003A2, 0x000A4C, 0x0005E0, 0x000940, 0x000750,
+  0x00045A, 0x000450, 0x0008E2, 0x000802, 0x000512, 0x000784,
+]
+blacklist = []
