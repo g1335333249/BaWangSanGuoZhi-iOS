@@ -1,6 +1,14 @@
 # 开发进度
 
-版本：0.3.5（2026-10-17，修复 iOS 横屏虚拟手柄；App 0.1.2 Build 10）
+版本：0.3.6（2026-10-17，批量补齐静态指针表入口；App 0.1.3 Build 11）
+
+## 2026-10-17 离线指针表审计与批量覆盖
+
+- 读取本地 `analysis/霸王三国志_可交给Codex的静态审计包.zip` 的报告、291 行 CSV、JSON 与 Python 解码脚本；SHA256 核对标准 BIN。新建可离线、确定性重跑的 `scripts/audit_native_dispatch.py`，实际比对 `bawang_dispatch.c` 的精确分发和 32 个 C 分片的指令 PC/内部标签，并复核每条 ROM 指针槽的原始字节。基线 142 个不同候选目标：**56 COVERED、75 MISSING_VALID、11 AMBIGUOUS、0 INTERIOR_ENTRY**。75 个确认项均来自真实指针槽且位于 `RTS` 后；仅 `$000A68` 位于无条件 `BRA $000200` 后并可连续解码。11 个无可靠函数边界、部分看似数据，未盲目加入。
+- 将 75 个独立代码入口集中加入 `games/bawang_sanguozhi/game.toml`，只执行一次 `sh scripts/generate.sh`；固定 ROM 的 32 个 C 分片生成成功，生成器 136/136 配置入口均接受，最终 1713 个函数/分段入口。重跑审计变成 **131 COVERED、11 AMBIGUOUS**，全部 75 个新增目标在生成的精确分发表中。没有候选属于已生成函数的内部标签，故本轮内部标签映射修复数为 0；这不证明任何未跑剧本已经全面兼容。
+- 尚未解析的 `$035DF8 JSR (A4)` 经现有生成 C 反向追踪：函数 `$035D62` 分支分别把 A4 设为 ROM `$007760` 或 `$007B76`，两者都已有精确原生分发；该函数内直到 JSR 前未见 A4 再赋值。此静态结论不替代未来动态执行轨迹。
+- macOS 核心、macOS 原生运行器和 iphoneos ARM64 核心均重编成功；iphoneos Release App 无签名构建成功。600 帧原生核心烟测：`raw_dispatch_misses=0`、`interpreted_instructions=0`；189 年第一剧本、01 玩家至君主选择的定向 10,500 帧前缀：`0 raw miss events`、`GENESIS_FLOOR=0`。**未定位到刘备选城与“孔融的战略”真实故障现场，因此不能声称该用户复现已修复，也没有该点的实际缺口地址或零回退证明。**`tests/bawang_189_ruler_probe.input` 保留短路径供后续继续；此前 M2/M3 长 Co-Simulation 未重跑。
+- `tests/test_native_dispatch_audit.py` 两次离线运行输出逐字节一致，并验证 291/142/131/11 及 `$0213B0` 五个重点目标均已覆盖；工作流手动触发策略测试通过。SRAM 格式未变；iOS `GameSession` 在原始分发缺口或解释器路径发生后不再把可能受损的当前 SRAM 覆写到已有效文件。App 版本升至 **0.1.3 Build 11**，XcodeGen、已提交 Xcode 工程、IPA 文件名与手动 Artifact 名称同步。下一步最具体任务：获得 189 年刘备选城后的输入序列或 iPhone 首个 raw miss 地址，复现到孔融 AI，再按真实地址判断它是否包含在本次 75 个入口内。
 
 ## 2026-10-17 横屏虚拟手柄紧急修复
 

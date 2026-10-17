@@ -60,7 +60,11 @@ final class GameSession: ObservableObject {
         guard running, !paused else { return nil }
         let buttons = virtualInput.sample() | controllerButtons()
         guard let image = bridge.step(withButtons: buttons) else {
-            persistSRAM()
+            // A failed native dispatch may already have mutated SRAM. Keep the
+            // last known-good file instead of writing that partial state.
+            if bridge.rawDispatchMissCount == 0 && bridge.interpretedInstructionCount == 0 {
+                persistSRAM()
+            }
             message = "游戏核心已停止。"
             audio.stop()
             bridge.stop()
@@ -70,17 +74,17 @@ final class GameSession: ObservableObject {
         }
         if let sound = bridge.copyAudio() { audio.append(sound) }
         frameNumber += 1
-        if frameNumber % 300 == 0 { persistSRAM() }
         let rawMiss = bridge.rawDispatchMissCount != 0
         let interpreted = bridge.interpretedInstructionCount != 0
         if rawMiss || interpreted {
-            persistSRAM()
             message = interpreted ? "游戏触及 68000 解释器路径，原生执行已停止。"
                                   : "遇到尚未静态重编译的 ROM 入口。"
             audio.stop()
             bridge.stop()
             running = false
             virtualInput.reset()
+        } else if frameNumber % 300 == 0 {
+            persistSRAM()
         }
         return image
     }

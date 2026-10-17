@@ -1,0 +1,3135 @@
+{
+  "rom_sha256": "e70f0a92c205ea432080cc48c18d1d43b7fc4d45464ed7fb218b119096e7cdd9",
+  "pointer_records": 291,
+  "unique_targets": 142,
+  "counts": {
+    "AMBIGUOUS": 11,
+    "COVERED": 131
+  },
+  "targets": [
+    {
+      "address": "0x000388",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C26"
+      ],
+      "rom_bytes": "202e000e287c00c000043880",
+      "first_instruction": "MOVE 14(A6),D0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x0003A2",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C2A"
+      ],
+      "rom_bytes": "202e0012222e000e661a3b40",
+      "first_instruction": "MOVE 18(A6),D0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x000440",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C2E"
+      ],
+      "rom_bytes": "222e000e1035100002800000",
+      "first_instruction": "MOVE 14(A6),D1",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x000450",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C32"
+      ],
+      "rom_bytes": "287c00c0000830144e753b7c",
+      "first_instruction": "MOVEA #$00C00008,A4",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x00045A",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C36"
+      ],
+      "rom_bytes": "3b7c002800463b7c012c0048",
+      "first_instruction": "MOVE #$0028,70(A5)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x000512",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C3A"
+      ],
+      "rom_bytes": "202e000e1b40001d202e0012",
+      "first_instruction": "MOVE 14(A6),D0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x000580",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C3E"
+      ],
+      "rom_bytes": "40e7007c0700202e000e1b40",
+      "first_instruction": "MOVE_SR_CCR -(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x0005B0",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C42"
+      ],
+      "rom_bytes": "40e7007c0700202e000e1b40",
+      "first_instruction": "MOVE_SR_CCR -(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x0005E0",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C46"
+      ],
+      "rom_bytes": "202e000e1b40002a202e0012",
+      "first_instruction": "MOVE 14(A6),D0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x000688",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C4A"
+      ],
+      "rom_bytes": "286e000e266e0012202e0016",
+      "first_instruction": "MOVEA 14(A6),A4",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x00069C",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C4E"
+      ],
+      "rom_bytes": "242e000e0282000000011035",
+      "first_instruction": "MOVE 14(A6),D2",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x0006B8",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C52"
+      ],
+      "rom_bytes": "202e002667000084202e0016",
+      "first_instruction": "MOVE 38(A6),D0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x000750",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C56"
+      ],
+      "rom_bytes": "102d0001024000ff00408164",
+      "first_instruction": "MOVE 1(A5),D0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x00076A",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C5A"
+      ],
+      "rom_bytes": "102d00010240009f00408104",
+      "first_instruction": "MOVE 1(A5),D0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x000784",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C5E"
+      ],
+      "rom_bytes": "202e000e72011b410036082d",
+      "first_instruction": "MOVE 14(A6),D0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x0007A0",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C62"
+      ],
+      "rom_bytes": "202e000e2a00222e0012206e",
+      "first_instruction": "MOVE 14(A6),D0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x000802",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C66"
+      ],
+      "rom_bytes": "202e000e222e001224005242",
+      "first_instruction": "MOVE 14(A6),D0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x000844",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C6A"
+      ],
+      "rom_bytes": "266e000e40e7007c07006100",
+      "first_instruction": "MOVEA 14(A6),A3",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x0008E2",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C8E"
+      ],
+      "rom_bytes": "4ebaff9e2200e58802800003",
+      "first_instruction": "JSR -98(PC)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x000940",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C92"
+      ],
+      "rom_bytes": "4ebaff4040e7007c0700222e",
+      "first_instruction": "JSR -192(PC)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x0009F2",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C96"
+      ],
+      "rom_bytes": "4ebafe8e2200e58802800003",
+      "first_instruction": "JSR -370(PC)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x000A4C",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C9A"
+      ],
+      "rom_bytes": "202e000e3b400038202e0012",
+      "first_instruction": "MOVE 14(A6),D0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x000A5E",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C9E"
+      ],
+      "rom_bytes": "2e7c00ffe0006000f79a7000",
+      "first_instruction": "MOVEA #$00FFE000,A7",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x000A68",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000CA2"
+      ],
+      "rom_bytes": "70001b40027b3a2d027c661a",
+      "first_instruction": "MOVEQ #0,D0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x000AE4",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000CA6"
+      ],
+      "rom_bytes": "207c00fff2b6203c000001ff",
+      "first_instruction": "MOVEA #$00FFF2B6,A0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x000B24",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000CAA"
+      ],
+      "rom_bytes": "202e000e1b40027b202e0012",
+      "first_instruction": "MOVE 14(A6),D0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x00194A",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C6E"
+      ],
+      "rom_bytes": "40e7007c07004eba00ee4e71",
+      "first_instruction": "MOVE_SR_CCR -(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x001970",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C72",
+        "0x000C7A",
+        "0x000C86"
+      ],
+      "rom_bytes": "40e7007c07004eba00c84e71",
+      "first_instruction": "MOVE_SR_CCR -(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x00198E",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C76",
+        "0x000C8A"
+      ],
+      "rom_bytes": "40e7007c07004eba00aa4e71",
+      "first_instruction": "MOVE_SR_CCR -(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x0019A0",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C7E"
+      ],
+      "rom_bytes": "40e7007c07004eba00984e71",
+      "first_instruction": "MOVE_SR_CCR -(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x0019CA",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x000C26"
+      ],
+      "call_sites": [
+        "0x000C1C"
+      ],
+      "pointer_slots": [
+        "0x000C82"
+      ],
+      "rom_bytes": "40e7007c07004eba006e4e71",
+      "first_instruction": "MOVE_SR_CCR -(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x003664",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045A0C"
+      ],
+      "call_sites": [
+        "0x00DE9E"
+      ],
+      "pointer_slots": [
+        "0x045A10"
+      ],
+      "rom_bytes": "6100ffd64e754eb9000392f2",
+      "first_instruction": "BSR $00363C",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x003672",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045A0C"
+      ],
+      "call_sites": [
+        "0x00DE9E"
+      ],
+      "pointer_slots": [
+        "0x045A0C"
+      ],
+      "rom_bytes": "4eb9000256b66100ffc24e75",
+      "first_instruction": "JSR $000256B6.L",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x00B54E",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x0455E8"
+      ],
+      "call_sites": [
+        "0x00C10E"
+      ],
+      "pointer_slots": [
+        "0x0455E8"
+      ],
+      "rom_bytes": "4e56fffc48e73f006100fd48",
+      "first_instruction": "LINK A6,#-4",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x00D4E4",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x0455E8"
+      ],
+      "call_sites": [
+        "0x00C10E"
+      ],
+      "pointer_slots": [
+        "0x0455EC"
+      ],
+      "rom_bytes": "48e7300074014eb90000ab02",
+      "first_instruction": "MOVEM $3000,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x00D570",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x0455E8"
+      ],
+      "call_sites": [
+        "0x00C10E"
+      ],
+      "pointer_slots": [
+        "0x0455F0"
+      ],
+      "rom_bytes": "4eb90000ab02487900041e84",
+      "first_instruction": "JSR $0000AB02.L",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x010F6E",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045A90"
+      ],
+      "call_sites": [
+        "0x01156A"
+      ],
+      "pointer_slots": [
+        "0x045A9C"
+      ],
+      "rom_bytes": "6100fe56560013c000ff601a",
+      "first_instruction": "BSR $010DC6",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x010FF8",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045A90"
+      ],
+      "call_sites": [
+        "0x01156A"
+      ],
+      "pointer_slots": [
+        "0x045A98"
+      ],
+      "rom_bytes": "7000103900ff601855807204",
+      "first_instruction": "MOVEQ #0,D0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x011078",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045A90"
+      ],
+      "call_sites": [
+        "0x01156A"
+      ],
+      "pointer_slots": [
+        "0x045A94"
+      ],
+      "rom_bytes": "7000103900ff60187206b081",
+      "first_instruction": "MOVEQ #0,D0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x015F62",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045B7E"
+      ],
+      "call_sites": [
+        "0x01637E"
+      ],
+      "pointer_slots": [
+        "0x045B8E",
+        "0x045B9A",
+        "0x045BB6"
+      ],
+      "rom_bytes": "2f3900ff2ce84eb900004398",
+      "first_instruction": "MOVE $00FF2CE8.L,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x015FCC",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045B7E"
+      ],
+      "call_sites": [
+        "0x01637E"
+      ],
+      "pointer_slots": [
+        "0x045B8A",
+        "0x045B96",
+        "0x045BA2",
+        "0x045BB2"
+      ],
+      "rom_bytes": "48e73000487800644eb90000",
+      "first_instruction": "MOVEM $3000,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x016064",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045B7E"
+      ],
+      "call_sites": [
+        "0x01637E"
+      ],
+      "pointer_slots": [
+        "0x045B82",
+        "0x045B9E",
+        "0x045BA6",
+        "0x045BAE"
+      ],
+      "rom_bytes": "48e73000487800644eb90000",
+      "first_instruction": "MOVEM $3000,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x0160F0",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045B7E"
+      ],
+      "call_sites": [
+        "0x01637E"
+      ],
+      "pointer_slots": [
+        "0x045B7E",
+        "0x045B86",
+        "0x045B92",
+        "0x045BAA"
+      ],
+      "rom_bytes": "48e73000487800644eb90000",
+      "first_instruction": "MOVEM $3000,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x017B0A",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045B7E"
+      ],
+      "call_sites": [
+        "0x01637E"
+      ],
+      "pointer_slots": [
+        "0x045BBA"
+      ],
+      "rom_bytes": "48e7302042a74eb900012380",
+      "first_instruction": "MOVEM $3020,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x017EDC",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045B7E"
+      ],
+      "call_sites": [
+        "0x01637E"
+      ],
+      "pointer_slots": [
+        "0x045BBE"
+      ],
+      "rom_bytes": "2f02207900ff2ce84a680010",
+      "first_instruction": "MOVE D2,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x017FB6",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045BD2"
+      ],
+      "call_sites": [
+        "0x019122"
+      ],
+      "pointer_slots": [
+        "0x045BDA"
+      ],
+      "rom_bytes": "48e73c2042a74eb900012380",
+      "first_instruction": "MOVEM $3C20,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x018538",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045BD2"
+      ],
+      "call_sites": [
+        "0x019122"
+      ],
+      "pointer_slots": [
+        "0x045BD6"
+      ],
+      "rom_bytes": "2f0a2f3900ff2ce84eb90000",
+      "first_instruction": "MOVE A2,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x0187F2",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045BD2"
+      ],
+      "call_sites": [
+        "0x019122"
+      ],
+      "pointer_slots": [
+        "0x045BD2"
+      ],
+      "rom_bytes": "2f02207900ff2ce80c68000a",
+      "first_instruction": "MOVE D2,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x018E42",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045BD2"
+      ],
+      "call_sites": [
+        "0x019122"
+      ],
+      "pointer_slots": [
+        "0x045BDE"
+      ],
+      "rom_bytes": "48e73c2042a74eb900012380",
+      "first_instruction": "MOVEM $3C20,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x019522",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045C22"
+      ],
+      "call_sites": [
+        "0x01ACF6"
+      ],
+      "pointer_slots": [
+        "0x045C2E"
+      ],
+      "rom_bytes": "4e56fffc2f02207900ff2ce8",
+      "first_instruction": "LINK A6,#-4",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x019772",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045C22"
+      ],
+      "call_sites": [
+        "0x01ACF6"
+      ],
+      "pointer_slots": [
+        "0x045C2A"
+      ],
+      "rom_bytes": "4e56fff848e73c20207900ff",
+      "first_instruction": "LINK A6,#-8",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x019C88",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045C22"
+      ],
+      "call_sites": [
+        "0x01ACF6"
+      ],
+      "pointer_slots": [
+        "0x045C26"
+      ],
+      "rom_bytes": "42a74eb900012380588f4a00",
+      "first_instruction": "CLR -(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x01A322",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045C22"
+      ],
+      "call_sites": [
+        "0x01ACF6"
+      ],
+      "pointer_slots": [
+        "0x045C22"
+      ],
+      "rom_bytes": "48e7382042a74eb900012380",
+      "first_instruction": "MOVEM $3820,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x01AAFA",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045C22"
+      ],
+      "call_sites": [
+        "0x01ACF6"
+      ],
+      "pointer_slots": [
+        "0x045C32"
+      ],
+      "rom_bytes": "4e56fffc48e73020207900ff",
+      "first_instruction": "LINK A6,#-4",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x01ADFE",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045C22",
+        "0x045C3A"
+      ],
+      "call_sites": [
+        "0x01ACF6",
+        "0x01B396"
+      ],
+      "pointer_slots": [
+        "0x045C42"
+      ],
+      "rom_bytes": "48e72030203900ff2cde0480",
+      "first_instruction": "MOVEM $2030,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x01AEC6",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045C22",
+        "0x045C3A"
+      ],
+      "call_sites": [
+        "0x01ACF6",
+        "0x01B396"
+      ],
+      "pointer_slots": [
+        "0x045C52"
+      ],
+      "rom_bytes": "2f024878002c4eb900003dea",
+      "first_instruction": "MOVE D2,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x01AF84",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045C22",
+        "0x045C3A"
+      ],
+      "call_sites": [
+        "0x01ACF6",
+        "0x01B396"
+      ],
+      "pointer_slots": [
+        "0x045C3E"
+      ],
+      "rom_bytes": "2f02207900ff2cde20680008",
+      "first_instruction": "MOVE D2,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x01B002",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045C22",
+        "0x045C3A"
+      ],
+      "call_sites": [
+        "0x01ACF6",
+        "0x01B396"
+      ],
+      "pointer_slots": [
+        "0x045C3A"
+      ],
+      "rom_bytes": "4e56fffc48e720202f3900ff",
+      "first_instruction": "LINK A6,#-4",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x01B09E",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045C22",
+        "0x045C3A"
+      ],
+      "call_sites": [
+        "0x01ACF6",
+        "0x01B396"
+      ],
+      "pointer_slots": [
+        "0x045C46"
+      ],
+      "rom_bytes": "207900ff2ce84aa8000c670e",
+      "first_instruction": "MOVEA $00FF2CE8.L,A0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x01B0BC",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045C22",
+        "0x045C3A"
+      ],
+      "call_sites": [
+        "0x01ACF6",
+        "0x01B396"
+      ],
+      "pointer_slots": [
+        "0x045C4A"
+      ],
+      "rom_bytes": "2f0a247c00ff2c9860602052",
+      "first_instruction": "MOVE A2,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x01B18E",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045C22",
+        "0x045C3A"
+      ],
+      "call_sites": [
+        "0x01ACF6",
+        "0x01B396"
+      ],
+      "pointer_slots": [
+        "0x045C4E"
+      ],
+      "rom_bytes": "4e56ff5448e73f3c422eff57",
+      "first_instruction": "LINK A6,#-172",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x01CBAA",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045C90"
+      ],
+      "call_sites": [
+        "0x01DE78"
+      ],
+      "pointer_slots": [
+        "0x045CA0"
+      ],
+      "rom_bytes": "42a74eb900012380588f4a00",
+      "first_instruction": "CLR -(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x01CE58",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045C90"
+      ],
+      "call_sites": [
+        "0x01DE78"
+      ],
+      "pointer_slots": [
+        "0x045C9C"
+      ],
+      "rom_bytes": "42a74eb900012380588f4a00",
+      "first_instruction": "CLR -(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x01D03E",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045C90"
+      ],
+      "call_sites": [
+        "0x01DE78"
+      ],
+      "pointer_slots": [
+        "0x045C98"
+      ],
+      "rom_bytes": "4e56fffc48e7302042a74eb9",
+      "first_instruction": "LINK A6,#-4",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x01D622",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045C90"
+      ],
+      "call_sites": [
+        "0x01DE78"
+      ],
+      "pointer_slots": [
+        "0x045C94"
+      ],
+      "rom_bytes": "48e730304eb90000f5d80c00",
+      "first_instruction": "MOVEM $3030,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x01DD5A",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045C90"
+      ],
+      "call_sites": [
+        "0x01DE78"
+      ],
+      "pointer_slots": [
+        "0x045C90"
+      ],
+      "rom_bytes": "2f024eb9000122bc48790004",
+      "first_instruction": "MOVE D2,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x01FC7C",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0"
+      ],
+      "pointer_slots": [
+        "0x045D56"
+      ],
+      "rom_bytes": "207900ff2ce84a680010660e",
+      "first_instruction": "MOVEA $00FF2CE8.L,A0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x01FED6",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0"
+      ],
+      "pointer_slots": [
+        "0x045D5A"
+      ],
+      "rom_bytes": "207900ff2ce84a680010660e",
+      "first_instruction": "MOVEA $00FF2CE8.L,A0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x01FF04",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0"
+      ],
+      "pointer_slots": [
+        "0x045D5E"
+      ],
+      "rom_bytes": "4e56fffc48e73f20207900ff",
+      "first_instruction": "LINK A6,#-4",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x020326",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0"
+      ],
+      "pointer_slots": [
+        "0x045D62"
+      ],
+      "rom_bytes": "7000103900ff100c72034eb9",
+      "first_instruction": "MOVEQ #0,D0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x0208AC",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42"
+      ],
+      "call_sites": [
+        "0x02132E"
+      ],
+      "pointer_slots": [
+        "0x045D4E",
+        "0x045D52"
+      ],
+      "rom_bytes": "4e56fffc4eb9000122bc4879",
+      "first_instruction": "LINK A6,#-4",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x0210FA",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42"
+      ],
+      "call_sites": [
+        "0x02132E"
+      ],
+      "pointer_slots": [
+        "0x045D4A"
+      ],
+      "rom_bytes": "4e56fffc48e730204eb90001",
+      "first_instruction": "LINK A6,#-4",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x0211DA",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42"
+      ],
+      "call_sites": [
+        "0x02132E"
+      ],
+      "pointer_slots": [
+        "0x045D46"
+      ],
+      "rom_bytes": "2f024eb9000122bc4878000a",
+      "first_instruction": "MOVE D2,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x0214CC",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0"
+      ],
+      "pointer_slots": [
+        "0x045D7A"
+      ],
+      "rom_bytes": "48780001207900ff5ef62f10",
+      "first_instruction": "PEA $0001.W",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x021502",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0"
+      ],
+      "pointer_slots": [
+        "0x045D8A"
+      ],
+      "rom_bytes": "42a7487800016100ff14508f",
+      "first_instruction": "CLR -(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x021510",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0"
+      ],
+      "pointer_slots": [
+        "0x045D82"
+      ],
+      "rom_bytes": "48780001487800016100ff04",
+      "first_instruction": "PEA $0001.W",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x021520",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0"
+      ],
+      "pointer_slots": [
+        "0x045D7E"
+      ],
+      "rom_bytes": "48780002487800016100fef4",
+      "first_instruction": "PEA $0002.W",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x021554",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0"
+      ],
+      "pointer_slots": [
+        "0x045D86"
+      ],
+      "rom_bytes": "48780003487800016100fec0",
+      "first_instruction": "PEA $0003.W",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x021564",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0"
+      ],
+      "pointer_slots": [
+        "0x045D76"
+      ],
+      "rom_bytes": "48780004487800016100feb0",
+      "first_instruction": "PEA $0004.W",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x021574",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0"
+      ],
+      "pointer_slots": [
+        "0x045D72"
+      ],
+      "rom_bytes": "7000303900ff603c2f004879",
+      "first_instruction": "MOVEQ #0,D0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x02159A",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0"
+      ],
+      "pointer_slots": [
+        "0x045D6E"
+      ],
+      "rom_bytes": "48780005487800016100fe7a",
+      "first_instruction": "PEA $0005.W",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x0215AA",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0"
+      ],
+      "pointer_slots": [
+        "0x045D6A"
+      ],
+      "rom_bytes": "203900ff6030048000ff2712",
+      "first_instruction": "MOVE $00FF6030.L,D0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x0215F4",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0"
+      ],
+      "pointer_slots": [
+        "0x045D66"
+      ],
+      "rom_bytes": "48780006487800016100fe20",
+      "first_instruction": "PEA $0006.W",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x021604",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0"
+      ],
+      "pointer_slots": [
+        "0x045D8E"
+      ],
+      "rom_bytes": "7000103900ff60405e802f00",
+      "first_instruction": "MOVEQ #0,D0",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x02161C",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0"
+      ],
+      "pointer_slots": [
+        "0x045D92"
+      ],
+      "rom_bytes": "487800034eb900003dea588f",
+      "first_instruction": "PEA $0003.W",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x021790",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56",
+        "0x045D96"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0",
+        "0x021F8C"
+      ],
+      "pointer_slots": [
+        "0x045DA2"
+      ],
+      "rom_bytes": "48e73020207900ff602023e8",
+      "first_instruction": "MOVEM $3020,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x02185E",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56",
+        "0x045D96"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0",
+        "0x021F8C"
+      ],
+      "pointer_slots": [
+        "0x045D9E"
+      ],
+      "rom_bytes": "4e56fffc2f024eb9000122bc",
+      "first_instruction": "LINK A6,#-4",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x021B50",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56",
+        "0x045D96"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0",
+        "0x021F8C"
+      ],
+      "pointer_slots": [
+        "0x045D9A"
+      ],
+      "rom_bytes": "4e56fffc48e73000163900ff",
+      "first_instruction": "LINK A6,#-4",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x021D2C",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56",
+        "0x045D96"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0",
+        "0x021F8C"
+      ],
+      "pointer_slots": [
+        "0x045D96"
+      ],
+      "rom_bytes": "4e56fffc2f02487800014eb9",
+      "first_instruction": "LINK A6,#-4",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x021F98",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56",
+        "0x045D96",
+        "0x045DA6"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0",
+        "0x021F8C",
+        "0x022A08"
+      ],
+      "pointer_slots": [
+        "0x045DB2"
+      ],
+      "rom_bytes": "4e56fffc2f02487800024eb9",
+      "first_instruction": "LINK A6,#-4",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x02213E",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56",
+        "0x045D96",
+        "0x045DA6"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0",
+        "0x021F8C",
+        "0x022A08"
+      ],
+      "pointer_slots": [
+        "0x045DAE"
+      ],
+      "rom_bytes": "4e56fffc48e720202f3900ff",
+      "first_instruction": "LINK A6,#-4",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x0226CA",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56",
+        "0x045D96",
+        "0x045DA6"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0",
+        "0x021F8C",
+        "0x022A08"
+      ],
+      "pointer_slots": [
+        "0x045DAA"
+      ],
+      "rom_bytes": "48e73830207900ff2ce82828",
+      "first_instruction": "MOVEM $3830,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x02295A",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56",
+        "0x045D96",
+        "0x045DA6"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0",
+        "0x021F8C",
+        "0x022A08"
+      ],
+      "pointer_slots": [
+        "0x045DA6"
+      ],
+      "rom_bytes": "48e7302013fc000100ff604c",
+      "first_instruction": "MOVEM $3020,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x022BD2",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56",
+        "0x045D96",
+        "0x045DA6",
+        "0x045DB6"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0",
+        "0x021F8C",
+        "0x022A08",
+        "0x0233E2"
+      ],
+      "pointer_slots": [
+        "0x045DBE"
+      ],
+      "rom_bytes": "48e72030247c00ff5eac6000",
+      "first_instruction": "MOVEM $2030,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x022EE0",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56",
+        "0x045D96",
+        "0x045DA6",
+        "0x045DB6"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0",
+        "0x021F8C",
+        "0x022A08",
+        "0x0233E2"
+      ],
+      "pointer_slots": [
+        "0x045DB6"
+      ],
+      "rom_bytes": "48e72020207900ff2cde1028",
+      "first_instruction": "MOVEM $2020,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x02332C",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56",
+        "0x045D96",
+        "0x045DA6",
+        "0x045DB6"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0",
+        "0x021F8C",
+        "0x022A08",
+        "0x0233E2"
+      ],
+      "pointer_slots": [
+        "0x045DBA"
+      ],
+      "rom_bytes": "48e72038287900ff5ef62f39",
+      "first_instruction": "MOVEM $2038,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x0233E6",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D56",
+        "0x045D96",
+        "0x045DA6",
+        "0x045DB6"
+      ],
+      "call_sites": [
+        "0x0213B0",
+        "0x021F8C",
+        "0x022A08",
+        "0x0233E2"
+      ],
+      "pointer_slots": [
+        "0x045DF2"
+      ],
+      "rom_bytes": "48e73000207900ff2ce81028",
+      "first_instruction": "MOVEM $3000,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x02355E",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D56",
+        "0x045D96",
+        "0x045DA6",
+        "0x045DB6"
+      ],
+      "call_sites": [
+        "0x0213B0",
+        "0x021F8C",
+        "0x022A08",
+        "0x0233E2"
+      ],
+      "pointer_slots": [
+        "0x045DEE"
+      ],
+      "rom_bytes": "4e56fffc48e720204a7900ff",
+      "first_instruction": "LINK A6,#-4",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x02365C",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D56",
+        "0x045D96",
+        "0x045DA6",
+        "0x045DB6"
+      ],
+      "call_sites": [
+        "0x0213B0",
+        "0x021F8C",
+        "0x022A08",
+        "0x0233E2"
+      ],
+      "pointer_slots": [
+        "0x045DEA"
+      ],
+      "rom_bytes": "48e738002f3900ff2ce84eb9",
+      "first_instruction": "MOVEM $3800,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x023792",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D56",
+        "0x045D96",
+        "0x045DA6",
+        "0x045DB6"
+      ],
+      "call_sites": [
+        "0x0213B0",
+        "0x021F8C",
+        "0x022A08",
+        "0x0233E2"
+      ],
+      "pointer_slots": [
+        "0x045DE6"
+      ],
+      "rom_bytes": "2f0242026038207900ff6084",
+      "first_instruction": "MOVE D2,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x023814",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D56",
+        "0x045D96",
+        "0x045DA6",
+        "0x045DB6"
+      ],
+      "call_sites": [
+        "0x0213B0",
+        "0x021F8C",
+        "0x022A08",
+        "0x0233E2"
+      ],
+      "pointer_slots": [
+        "0x045DE2"
+      ],
+      "rom_bytes": "48e70030487800644eb90000",
+      "first_instruction": "MOVEM $0030,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x0238E8",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56",
+        "0x045D96",
+        "0x045DA6",
+        "0x045DB6"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0",
+        "0x021F8C",
+        "0x022A08",
+        "0x0233E2"
+      ],
+      "pointer_slots": [
+        "0x045DD6"
+      ],
+      "rom_bytes": "48e72020207900ff2ce82f28",
+      "first_instruction": "MOVEM $2020,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x0239FC",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56",
+        "0x045D96",
+        "0x045DA6",
+        "0x045DB6"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0",
+        "0x021F8C",
+        "0x022A08",
+        "0x0233E2"
+      ],
+      "pointer_slots": [
+        "0x045DDE"
+      ],
+      "rom_bytes": "48e70038207900ff2ce84aa8",
+      "first_instruction": "MOVEM $0038,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x023AB8",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56",
+        "0x045D96",
+        "0x045DA6",
+        "0x045DB6"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0",
+        "0x021F8C",
+        "0x022A08",
+        "0x0233E2"
+      ],
+      "pointer_slots": [
+        "0x045DDA"
+      ],
+      "rom_bytes": "2f0a207900ff2ce84aa80008",
+      "first_instruction": "MOVE A2,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x023B42",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56",
+        "0x045D96",
+        "0x045DA6",
+        "0x045DB6"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0",
+        "0x021F8C",
+        "0x022A08",
+        "0x0233E2"
+      ],
+      "pointer_slots": [
+        "0x045DD2"
+      ],
+      "rom_bytes": "2f02207900ff2ce810280019",
+      "first_instruction": "MOVE D2,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x023C52",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56",
+        "0x045D96",
+        "0x045DA6",
+        "0x045DB6"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0",
+        "0x021F8C",
+        "0x022A08",
+        "0x0233E2"
+      ],
+      "pointer_slots": [
+        "0x045DCE"
+      ],
+      "rom_bytes": "48e73000207900ff2ce81028",
+      "first_instruction": "MOVEM $3000,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x023D60",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56",
+        "0x045D96",
+        "0x045DA6",
+        "0x045DB6"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0",
+        "0x021F8C",
+        "0x022A08",
+        "0x0233E2"
+      ],
+      "pointer_slots": [
+        "0x045DC2"
+      ],
+      "rom_bytes": "48e738004878000348780002",
+      "first_instruction": "MOVEM $3800,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x023EF0",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56",
+        "0x045D96",
+        "0x045DA6",
+        "0x045DB6"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0",
+        "0x021F8C",
+        "0x022A08",
+        "0x0233E2"
+      ],
+      "pointer_slots": [
+        "0x045DCA"
+      ],
+      "rom_bytes": "2f02207900ff2ce81428001e",
+      "first_instruction": "MOVE D2,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x023F5E",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D42",
+        "0x045D56",
+        "0x045D96",
+        "0x045DA6",
+        "0x045DB6"
+      ],
+      "call_sites": [
+        "0x02132E",
+        "0x0213B0",
+        "0x021F8C",
+        "0x022A08",
+        "0x0233E2"
+      ],
+      "pointer_slots": [
+        "0x045DC6"
+      ],
+      "rom_bytes": "2f02207900ff2ce81428001c",
+      "first_instruction": "MOVE D2,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x024042",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D96",
+        "0x045DA6",
+        "0x045DB6",
+        "0x045DF6"
+      ],
+      "call_sites": [
+        "0x021F8C",
+        "0x022A08",
+        "0x0233E2",
+        "0x02447A"
+      ],
+      "pointer_slots": [
+        "0x045E02"
+      ],
+      "rom_bytes": "48e73030207900ff2ce82f28",
+      "first_instruction": "MOVEM $3030,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x02434E",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D96",
+        "0x045DA6",
+        "0x045DB6",
+        "0x045DF6"
+      ],
+      "call_sites": [
+        "0x021F8C",
+        "0x022A08",
+        "0x0233E2",
+        "0x02447A"
+      ],
+      "pointer_slots": [
+        "0x045DFE"
+      ],
+      "rom_bytes": "6100ffa46100fe604e7548e7",
+      "first_instruction": "BSR $0242F4",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x024358",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045D96",
+        "0x045DA6",
+        "0x045DB6",
+        "0x045DF6"
+      ],
+      "call_sites": [
+        "0x021F8C",
+        "0x022A08",
+        "0x0233E2",
+        "0x02447A"
+      ],
+      "pointer_slots": [
+        "0x045DF6"
+      ],
+      "rom_bytes": "48e72030203900ff2cde0480",
+      "first_instruction": "MOVEM $2030,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x02D9AA",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045FDC"
+      ],
+      "call_sites": [
+        "0x02DDB8"
+      ],
+      "pointer_slots": [
+        "0x045FDC"
+      ],
+      "rom_bytes": "48e738004202600c48780001",
+      "first_instruction": "MOVEM $3800,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x02DD76",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045FDC"
+      ],
+      "call_sites": [
+        "0x02DDB8"
+      ],
+      "pointer_slots": [
+        "0x045FE4"
+      ],
+      "rom_bytes": "13fc00ff00ff5ed06100fec8",
+      "first_instruction": "MOVE #$00FF,$00FF5ED0.L",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x02DD9C",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045FDC"
+      ],
+      "call_sites": [
+        "0x02DDB8"
+      ],
+      "pointer_slots": [
+        "0x045FE0"
+      ],
+      "rom_bytes": "4eb90002ea664e7570001039",
+      "first_instruction": "JSR $0002EA66.L",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x02F792",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045FDC",
+        "0x045FF0"
+      ],
+      "call_sites": [
+        "0x02DDB8",
+        "0x02F860"
+      ],
+      "pointer_slots": [
+        "0x045FF0"
+      ],
+      "rom_bytes": "2f02600c487800014eb90002",
+      "first_instruction": "MOVE D2,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x02F844",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045FDC",
+        "0x045FF0"
+      ],
+      "call_sites": [
+        "0x02DDB8",
+        "0x02F860"
+      ],
+      "pointer_slots": [
+        "0x045FF8"
+      ],
+      "rom_bytes": "4eb90002fd6c4e7570001039",
+      "first_instruction": "JSR $0002FD6C.L",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x02FB00",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045FDC",
+        "0x045FF0"
+      ],
+      "call_sites": [
+        "0x02DDB8",
+        "0x02F860"
+      ],
+      "pointer_slots": [
+        "0x045FF4"
+      ],
+      "rom_bytes": "48e73820247900ff644a2f0a",
+      "first_instruction": "MOVEM $3820,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x031B76",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045FDC",
+        "0x045FF0",
+        "0x045FFC"
+      ],
+      "call_sites": [
+        "0x02DDB8",
+        "0x02F860",
+        "0x032A70"
+      ],
+      "pointer_slots": [
+        "0x045FFC"
+      ],
+      "rom_bytes": "48e730002f3900ff644a4eb9",
+      "first_instruction": "MOVEM $3000,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x031CC4",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045FDC",
+        "0x045FF0",
+        "0x045FFC"
+      ],
+      "call_sites": [
+        "0x02DDB8",
+        "0x02F860",
+        "0x032A70"
+      ],
+      "pointer_slots": [
+        "0x046004"
+      ],
+      "rom_bytes": "48e73820420213fc000100ff",
+      "first_instruction": "MOVEM $3820,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x032206",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045FDC",
+        "0x045FF0",
+        "0x045FFC"
+      ],
+      "call_sites": [
+        "0x02DDB8",
+        "0x02F860",
+        "0x032A70"
+      ],
+      "pointer_slots": [
+        "0x046000"
+      ],
+      "rom_bytes": "2f02207900ff644612280014",
+      "first_instruction": "MOVE D2,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x032246",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045FDC",
+        "0x045FF0",
+        "0x045FFC"
+      ],
+      "call_sites": [
+        "0x02DDB8",
+        "0x02F860",
+        "0x032A70"
+      ],
+      "pointer_slots": [
+        "0x04600C"
+      ],
+      "rom_bytes": "4e56fff848e73f20422efff8",
+      "first_instruction": "LINK A6,#-8",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x032882",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x045FDC",
+        "0x045FF0",
+        "0x045FFC"
+      ],
+      "call_sites": [
+        "0x02DDB8",
+        "0x02F860",
+        "0x032A70"
+      ],
+      "pointer_slots": [
+        "0x046008"
+      ],
+      "rom_bytes": "4e56fff048e73f006100ef2a",
+      "first_instruction": "LINK A6,#-16",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x035736",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x0465D0"
+      ],
+      "call_sites": [
+        "0x035D5E"
+      ],
+      "pointer_slots": [
+        "0x0465D0"
+      ],
+      "rom_bytes": "4e56fffc48e73030422effff",
+      "first_instruction": "LINK A6,#-4",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x035AA2",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x0465D0"
+      ],
+      "call_sites": [
+        "0x035D5E"
+      ],
+      "pointer_slots": [
+        "0x0465D4"
+      ],
+      "rom_bytes": "4e56fffc48e72020422effff",
+      "first_instruction": "LINK A6,#-4",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x035B22",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x0465D0"
+      ],
+      "call_sites": [
+        "0x035D5E"
+      ],
+      "pointer_slots": [
+        "0x0465D8"
+      ],
+      "rom_bytes": "48e730307601267c00ff5ed2",
+      "first_instruction": "MOVEM $3030,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x035C24",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x0465D0"
+      ],
+      "call_sites": [
+        "0x035D5E"
+      ],
+      "pointer_slots": [
+        "0x0465DC"
+      ],
+      "rom_bytes": "48e73e002f3900ff644a4eb9",
+      "first_instruction": "MOVEM $3E00,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x03BD8E",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x046D7A"
+      ],
+      "call_sites": [
+        "0x03C30C"
+      ],
+      "pointer_slots": [
+        "0x046D82"
+      ],
+      "rom_bytes": "48e7382042a7487800294879",
+      "first_instruction": "MOVEM $3820,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x03BFB8",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x046D7A"
+      ],
+      "call_sites": [
+        "0x03C30C"
+      ],
+      "pointer_slots": [
+        "0x046D86"
+      ],
+      "rom_bytes": "48e7382042a7487800294879",
+      "first_instruction": "MOVEM $3820,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x03C0D0",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x046D7A"
+      ],
+      "call_sites": [
+        "0x03C30C"
+      ],
+      "pointer_slots": [
+        "0x046D7A"
+      ],
+      "rom_bytes": "48e73000487800294eb90000",
+      "first_instruction": "MOVEM $3000,-(A7)",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x03C16E",
+      "status": "COVERED",
+      "reason": "exact native dispatch entry",
+      "source_tables": [
+        "0x046D7A"
+      ],
+      "call_sites": [
+        "0x03C30C"
+      ],
+      "pointer_slots": [
+        "0x046D7E"
+      ],
+      "rom_bytes": "4e56ffd448e73c2042034204",
+      "first_instruction": "LINK A6,#-44",
+      "in_native_dispatch": true,
+      "in_generated_instructions": true,
+      "in_generated_labels": false,
+      "action": "already covered"
+    },
+    {
+      "address": "0x041D0E",
+      "status": "AMBIGUOUS",
+      "reason": "no independently verified entry boundary",
+      "source_tables": [
+        "0x0455E8"
+      ],
+      "call_sites": [
+        "0x00C10E"
+      ],
+      "pointer_slots": [
+        "0x0455F8"
+      ],
+      "rom_bytes": "81d200ff81d300ff81d48188",
+      "first_instruction": "OR_DIV (A2)",
+      "in_native_dispatch": false,
+      "in_generated_instructions": false,
+      "in_generated_labels": false,
+      "action": "do not add without further evidence"
+    },
+    {
+      "address": "0x041D12",
+      "status": "AMBIGUOUS",
+      "reason": "no independently verified entry boundary",
+      "source_tables": [
+        "0x0455E8"
+      ],
+      "call_sites": [
+        "0x00C10E"
+      ],
+      "pointer_slots": [
+        "0x0455F4"
+      ],
+      "rom_bytes": "81d300ff81d48188818481d5",
+      "first_instruction": "OR_DIV (A3)",
+      "in_native_dispatch": false,
+      "in_generated_instructions": false,
+      "in_generated_labels": false,
+      "action": "do not add without further evidence"
+    },
+    {
+      "address": "0x0431E0",
+      "status": "AMBIGUOUS",
+      "reason": "no independently verified entry boundary",
+      "source_tables": [
+        "0x045FDC"
+      ],
+      "call_sites": [
+        "0x02DDB8"
+      ],
+      "pointer_slots": [
+        "0x045FEC"
+      ],
+      "rom_bytes": "8299819600ff82f0819600ff",
+      "first_instruction": "OR_DIV (A1)+",
+      "in_native_dispatch": false,
+      "in_generated_instructions": false,
+      "in_generated_labels": false,
+      "action": "do not add without further evidence"
+    },
+    {
+      "address": "0x0431E6",
+      "status": "AMBIGUOUS",
+      "reason": "no independently verified entry boundary",
+      "source_tables": [
+        "0x045FDC"
+      ],
+      "call_sites": [
+        "0x02DDB8"
+      ],
+      "pointer_slots": [
+        "0x045FE8"
+      ],
+      "rom_bytes": "82f0819600ff257300ff82f1",
+      "first_instruction": "OR_DIV indexed(A0,0x8196)",
+      "in_native_dispatch": false,
+      "in_generated_instructions": false,
+      "in_generated_labels": false,
+      "action": "do not add without further evidence"
+    },
+    {
+      "address": "0x043296",
+      "status": "AMBIGUOUS",
+      "reason": "no independently verified entry boundary",
+      "source_tables": [
+        "0x045FDC",
+        "0x045FF0",
+        "0x045FFC"
+      ],
+      "call_sites": [
+        "0x02DDB8",
+        "0x02F860",
+        "0x032A70"
+      ],
+      "pointer_slots": [
+        "0x046014"
+      ],
+      "rom_bytes": "82f382f400ff00ff0a002573",
+      "first_instruction": "OR_DIV indexed(A3,0x82F4)",
+      "in_native_dispatch": false,
+      "in_generated_instructions": false,
+      "in_generated_labels": false,
+      "action": "do not add without further evidence"
+    },
+    {
+      "address": "0x0432DA",
+      "status": "AMBIGUOUS",
+      "reason": "no independently verified entry boundary",
+      "source_tables": [
+        "0x045FDC",
+        "0x045FF0",
+        "0x045FFC"
+      ],
+      "call_sites": [
+        "0x02DDB8",
+        "0x02F860",
+        "0x032A70"
+      ],
+      "pointer_slots": [
+        "0x04601C"
+      ],
+      "rom_bytes": "82f7829700ff82e581708271",
+      "first_instruction": "OR_DIV indexed(A7,0x8297)",
+      "in_native_dispatch": false,
+      "in_generated_instructions": false,
+      "in_generated_labels": false,
+      "action": "do not add without further evidence"
+    },
+    {
+      "address": "0x0432E0",
+      "status": "AMBIGUOUS",
+      "reason": "no independently verified entry boundary",
+      "source_tables": [
+        "0x045FDC",
+        "0x045FF0",
+        "0x045FFC"
+      ],
+      "call_sites": [
+        "0x02DDB8",
+        "0x02F860",
+        "0x032A70"
+      ],
+      "pointer_slots": [
+        "0x046018"
+      ],
+      "rom_bytes": "82e581708271829d00ff8180",
+      "first_instruction": "OR_DIV -(A5)",
+      "in_native_dispatch": false,
+      "in_generated_instructions": false,
+      "in_generated_labels": false,
+      "action": "do not add without further evidence"
+    },
+    {
+      "address": "0x0432F6",
+      "status": "AMBIGUOUS",
+      "reason": "no independently verified entry boundary",
+      "source_tables": [
+        "0x045FDC",
+        "0x045FF0",
+        "0x045FFC"
+      ],
+      "call_sites": [
+        "0x02DDB8",
+        "0x02F860",
+        "0x032A70"
+      ],
+      "pointer_slots": [
+        "0x046024"
+      ],
+      "rom_bytes": "8271829d82f7829700ff82e5",
+      "first_instruction": "OR_DIV indexed(A1,0x829D)",
+      "in_native_dispatch": false,
+      "in_generated_instructions": false,
+      "in_generated_labels": false,
+      "action": "do not add without further evidence"
+    },
+    {
+      "address": "0x043300",
+      "status": "AMBIGUOUS",
+      "reason": "no independently verified entry boundary",
+      "source_tables": [
+        "0x045FDC",
+        "0x045FF0",
+        "0x045FFC"
+      ],
+      "call_sites": [
+        "0x02DDB8",
+        "0x02F860",
+        "0x032A70"
+      ],
+      "pointer_slots": [
+        "0x046020"
+      ],
+      "rom_bytes": "82e581708271829d00ff82e5",
+      "first_instruction": "OR_DIV -(A5)",
+      "in_native_dispatch": false,
+      "in_generated_instructions": false,
+      "in_generated_labels": false,
+      "action": "do not add without further evidence"
+    },
+    {
+      "address": "0x043490",
+      "status": "AMBIGUOUS",
+      "reason": "no independently verified entry boundary",
+      "source_tables": [
+        "0x0465D0"
+      ],
+      "call_sites": [
+        "0x035D5E"
+      ],
+      "pointer_slots": [
+        "0x0465E4"
+      ],
+      "rom_bytes": "82888289819c2e0082ea8304",
+      "first_instruction": "OR_DIV A0",
+      "in_native_dispatch": false,
+      "in_generated_instructions": false,
+      "in_generated_labels": false,
+      "action": "do not add without further evidence"
+    },
+    {
+      "address": "0x043498",
+      "status": "AMBIGUOUS",
+      "reason": "no independently verified entry boundary",
+      "source_tables": [
+        "0x0465D0"
+      ],
+      "call_sites": [
+        "0x035D5E"
+      ],
+      "pointer_slots": [
+        "0x0465E0"
+      ],
+      "rom_bytes": "82ea8304819c2e000a0000ff",
+      "first_instruction": "OR_DIV -31996(A2)",
+      "in_native_dispatch": false,
+      "in_generated_instructions": false,
+      "in_generated_labels": false,
+      "action": "do not add without further evidence"
+    }
+  ],
+  "unresolved_call_site": "0x035DF8: A4 = 0x007760 or 0x007B76 in func_035D62; both exact native dispatch entries"
+}

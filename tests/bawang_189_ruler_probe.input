@@ -1,0 +1,16 @@
+# 189 scenario (first item): select 01 player and stop at the ruler map.
+WAIT 6000
+HOLD START
+WAIT 90
+RELEASE START
+WAIT 910
+PRESS C 2
+WAIT 600
+PRESS RIGHT 2
+WAIT 90
+PRESS UP 2
+WAIT 90
+PRESS C 2
+WAIT 600
+SCREENSHOT bawang_189_ruler_menu.png
+WAIT 300
