@@ -1,6 +1,15 @@
 # 开发进度
 
-版本：0.3.1（2026-10-17，M3 最低流程已打通，iOS App 0.1.0 Build 8 已在模拟器运行；全游戏及真机未验收）
+版本：0.3.2（2026-10-17，M3 最低流程已打通，iOS App 0.1.1 Build 9 支持可选内置 ROM；全游戏及真机未验收）
+
+## 2026-10-17 Build 9 内置 ROM 与手动私有 IPA 构建
+
+- `GameSession` 首次启动先尝试沙盒内已校验 ROM；缺失或损坏时尝试 Bundle `bawang_sanguozhi.bin`，通过原有 `SaveManager.importROM` 与共用 C 核心 SHA256 校验后导入可写沙盒并启动。无资源显示原导入界面，错误资源显示明确提示；原文件选择、SRAM Application Support 路径、VDP/Metal、音频及手柄代码保留。App/XcodeGen 版本均为 **0.1.1 Build 9**。
+- `scripts/prepare_ios_bundle_rom.py` 只接受 1 MiB 且 SHA256 匹配的标准 BIN，复制到 Git 忽略的 `apps/ios/BawangSanguozhi/Resources/`。XcodeGen 在资源存在时自动列入 `Copy Bundle Resources`；移除资源重新生成工程时不引用 ROM。`scripts/package_unsigned_ipa.py` 检查真实 Payload、iOS ARM64 Mach-O、原生核心符号、Bundle ID/版本、ROM SHA256、无签名与无敏感附加文件。
+- 本机从用户 ROM 重生 **32 个 C 分片**，重编 `libBawangCore.a` 和 iphoneos arm64 Release App，打包 `apps/ios/build-device/ipa/BawangSanguozhi-0.1.1-build9-unsigned.ipa`（仅本地、Git 忽略）。IPA **2,343,443 字节**，SHA256 `b6a089c016276a10fbf5d7e6cee95906eee35aac6ec191ab4bedc7bc4f8ff0e6`；解包复核资源哈希 `e70f0a92c205ea432080cc48c18d1d43b7fc4d45464ed7fb218b119096e7cdd9`，可执行文件的 `LC_BUILD_VERSION platform IOS` 与 `arm64`、`_bawang_core_frame/_bawang_core_start_file` 均核实。未签名 IPA 仍需有效签名才能装普通 iPhone。
+- 隔离 iPhone 17 Pro 模拟器的首次正确 Bundle ROM 启动后，Application Support 自动生成 SHA256 正确的 `user-rom.bin`，进程正常启动；该次截图因本机磁盘占满未能保存，故不声称新增截图验收。另一隔离模拟器中，**无 Bundle ROM** 的 Build 9 干净构建显示“导入 ROM”界面；故意篡改资源后显示“内置 ROM 校验失败”且不崩溃。磁盘不足阻断了该隔离模拟器随后的覆盖安装测试，临时设备均已删除；原有模拟器数据未动。
+- `.github/workflows/build-unsigned-ipa.yml` 只由 `workflow_dispatch` 触发，使用 `macos-26` ARM64/Xcode 26.6，先检查仓库 Private，再从同仓库私有 Release Asset 下载 ROM，应用固定上游补丁、重生代码、构建与打包，7 天仅私有上传 IPA。当前公开仓库**未运行**该工作流；须先配置私有代码镜像与 `private-rom` Release Asset。`tests/test_ios_rom_staging.py` 与 `tests/test_ios_workflow_policy.py` 通过；上游 CTest **15/15**、M2 Co-Simulation **10/10**、核心 600 帧和 64 KiB SRAM 测试通过。
+- 待验收：同版本覆盖升级及原存档在 Simulator 的完整路径、虚拟键实际点击、真机签名安装、私有 GitHub Actions 运行、整局游戏兼容。未推送 ROM、生成代码、IPA 或截图。
 
 ## 2026-10-17 跨平台 C 核心边界与 Build 8
 

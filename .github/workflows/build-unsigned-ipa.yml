@@ -1,0 +1,116 @@
+name: Build Bawang Sanguozhi Unsigned IPA
+
+on:
+  workflow_dispatch:
+    inputs:
+      rom_release_tag:
+        description: Private release tag containing bawang_sanguozhi.smd
+        required: true
+        default: private-rom
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-26
+    steps:
+      - name: Require a private repository
+        env:
+          REPO_PRIVATE: ${{ github.event.repository.private }}
+        run: |
+          if [ "$REPO_PRIVATE" != "true" ]; then
+            echo "ROM-bearing builds and artifacts are allowed only in a Private repository." >&2
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - name: Select and verify Xcode 26.6 toolchain
+        run: |
+          sudo xcode-select -s /Applications/Xcode_26.6.app/Contents/Developer
+          xcodebuild -version
+          xcrun clang --version
+          cmake --version
+          ninja --version
+          python3 --version
+          test "$(xcodebuild -version | head -1)" = "Xcode 26.6"
+          if ! command -v xcodegen >/dev/null; then brew install xcodegen; fi
+          xcodegen --version
+
+      - name: Download privately held ROM release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ROM_RELEASE_TAG: ${{ inputs.rom_release_tag }}
+        run: |
+          mkdir -p input
+          gh release download "$ROM_RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern bawang_sanguozhi.smd --dir input --clobber || {
+              echo "Private ROM release or bawang_sanguozhi.smd asset missing." >&2
+              exit 1
+            }
+          test -f input/bawang_sanguozhi.smd || {
+            echo "Private Release Asset bawang_sanguozhi.smd is required." >&2
+            exit 1
+          }
+          mv input/bawang_sanguozhi.smd input/霸王三国志.smd
+          python3 scripts/smd_to_bin.py input/霸王三国志.smd -o input/bawang_sanguozhi.bin
+
+      - name: Bootstrap pinned recompiler and apply M2/M3 patches
+        run: |
+          sh scripts/bootstrap_upstream.sh
+          cmake -S third_party/segagenesisrecomp/recompiler \
+            -B third_party/segagenesisrecomp/build/recompiler -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build third_party/segagenesisrecomp/build/recompiler -j 4
+
+      - name: Generate actual game C code
+        run: |
+          sh scripts/generate.sh
+          count=$(find games/bawang_sanguozhi/build/generated -maxdepth 1 -name 'bawang_part*.c' | wc -l | tr -d ' ')
+          test "$count" = 32 || { echo "Expected 32 generated C fragments; got $count" >&2; exit 1; }
+          test -f games/bawang_sanguozhi/build/generated/bawang_dispatch.c
+          test -f games/bawang_sanguozhi/build/generated/bawang_ram_helper.c
+
+      - name: Compile native iphoneos arm64 core
+        run: |
+          cmake -S apps/core -B apps/core/build-ios-device -G Ninja \
+            -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphoneos \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=15.0 \
+            -DCMAKE_BUILD_TYPE=Release
+          cmake --build apps/core/build-ios-device -j 4
+          test -s apps/core/build-ios-device/libBawangCore.a
+          xcrun lipo -archs apps/core/build-ios-device/libBawangCore.a | grep -w arm64
+
+      - name: Embed verified ROM and build unsigned device app
+        run: |
+          python3 scripts/prepare_ios_bundle_rom.py input/bawang_sanguozhi.bin
+          xcodegen generate --spec apps/ios/project.yml
+          xcodebuild -project apps/ios/BawangSanguozhi.xcodeproj \
+            -scheme BawangSanguozhi -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' ARCHS=arm64 \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+            -derivedDataPath apps/ios/build-device build
+
+      - name: Verify real app and package Payload IPA
+        run: |
+          python3 scripts/package_unsigned_ipa.py \
+            --app apps/ios/build-device/Build/Products/Release-iphoneos/BawangSanguozhi.app \
+            --output-dir apps/ios/build-device/ipa --commit "$GITHUB_SHA"
+
+      - name: Upload IPA only from private repository
+        if: ${{ github.event.repository.private }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: BawangSanguozhi-iOS-Unsigned-v0.1.1-build9
+          path: apps/ios/build-device/ipa/BawangSanguozhi-0.1.1-build9-unsigned.ipa
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Upload build summary without ROM
+        if: ${{ github.event.repository.private }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: BawangSanguozhi-build-summary-v0.1.1-build9
+          path: apps/ios/build-device/ipa/build-summary.json
+          retention-days: 7

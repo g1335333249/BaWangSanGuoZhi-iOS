@@ -7,5 +7,9 @@ apps/*/build-*/
 **/.DS_Store
 *.o
 *.bin
+*.smd
+*.srm
+apps/ios/BawangSanguozhi/Resources/bawang_sanguozhi.bin
+*.ipa
 __pycache__/
 .DS_Store

@@ -12,8 +12,26 @@ final class GameSession: ObservableObject {
     private var frameNumber = 0
     var videoWidth: Int { bridge.videoWidth }
 
-    init() {
-        if FileManager.default.fileExists(atPath: SaveManager.romURL.path) { start() }
+    init() { bootstrapROM() }
+
+    private func bootstrapROM() {
+        // A previously imported and verified ROM wins across app upgrades.
+        if FileManager.default.fileExists(atPath: SaveManager.romURL.path) {
+            start()
+            if running { return }
+        }
+        guard let bundled = Bundle.main.url(forResource: "bawang_sanguozhi", withExtension: "bin") else {
+            if !FileManager.default.fileExists(atPath: SaveManager.romURL.path) {
+                message = "导入用户持有的 ROM 后开始游戏"
+            }
+            return
+        }
+        do {
+            try SaveManager.importROM(bundled, through: bridge)
+            start()
+        } catch {
+            message = "内置 ROM 校验失败。请手动导入正确版本的 ROM。"
+        }
     }
 
     func importROM(_ url: URL) {
