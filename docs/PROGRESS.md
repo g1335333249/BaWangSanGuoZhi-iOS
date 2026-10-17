@@ -1,6 +1,12 @@
 # 开发进度
 
-版本：0.3.8（2026-10-17，iOS 单词级显示替换试验；App 0.1.5 Build 13）
+版本：0.3.9（2026-10-17，iOS 旗帜呈现保护与字形校准；App 0.1.6 Build 14）
+
+## 2026-10-17 iOS 0.1.6 Build 14 增量补丁
+
+- 应用用户提供的增量补丁：虚拟方向键改为对称的 3×3 布局；地图旗帜保护改用已见过的彩色像素历史；“劉備”显示层替换增加手工框选字形模板和本地校准。更改只影响 iOS 呈现与输入布局，不修改 ROM、68000 原生核心或 SRAM。显示层方案的局限见 `docs/PATCH_0_1_6.md`。
+- `git apply --check`、XcodeGen 生成、`tests/test_game_flag_recovery.swift` 和 `tests/test_game_word_template.swift` 通过；iphoneos ARM64 Release 无签名编译通过。暂存正确 Bundle ROM 后再次构建成功，`scripts/package_unsigned_ipa.py` 核对 0.1.6 Build 14 IPA：2,876,647 字节、SHA256 `74ef61cc470abc152c498bbf11efab5c32a426ddf34873a4d3a7aac5bc95676d`，内置 BIN SHA256 `e70f0a92c205ea432080cc48c18d1d43b7fc4d45464ed7fb218b119096e7cdd9`。打包时 commit 元数据为补丁前 HEAD；新提交需重新构建才对应最终 SHA。本地 IPA 与暂存 ROM 不提交。
+- 工作流仍仅 `workflow_dispatch`；真机旗帜修复效果、字形标定交互及旧版 SRAM 覆盖升级尚未验证，本轮未重跑长期游戏或 Co-Simulation。
 
 ## 2026-10-17 iOS 0.1.5 Build 13 增量补丁
 

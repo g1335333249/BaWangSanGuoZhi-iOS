@@ -5,6 +5,7 @@ struct BawangApp: App {
     @StateObject private var game = GameSession()
     @Environment(\.scenePhase) private var scenePhase
     @State private var showingDisplaySettings = false
+    @State private var showingWordCalibration = false
     @AppStorage("BawangPartialMenuDeGlitch") private var partialMenuGuard = true
     @AppStorage("BawangMapBlackTileRepair") private var blackTileGuard = true
     @AppStorage("BawangGameLanguage") private var gameLanguage = "traditional"
@@ -40,7 +41,7 @@ struct BawangApp: App {
                 NavigationView {
                     Form {
                         Toggle("隐藏章节菜单短暂乱码", isOn: $partialMenuGuard)
-                        Toggle("修补地图小面积黑块（试验性）", isOn: $blackTileGuard)
+                        Toggle("保护地图已显示的彩色旗帜（试验性）", isOn: $blackTileGuard)
                         Picker("游戏文字", selection: $gameLanguage) {
                             Text("繁体原版").tag("traditional")
                             Text("简体 · 刘备测试").tag("simplified")
@@ -51,16 +52,29 @@ struct BawangApp: App {
                             Spacer()
                             Text(gameLanguage == "simplified" ? "刘备" : "劉備")
                         }
-                        Text("最近一次游戏画面识别：\(lastLocalizationHits > 0 ? "找到劉備" : "未识别到劉備")")
+                        Text(GameWordTemplateStore.shared.isCalibrated ? "已保存『劉備』原版字形" : "尚未校准『劉備』字形")
                             .font(.footnote).foregroundColor(.secondary)
-                        Text("简体测试仅尝试识别并替换‘劉備’；需要文字清晰、背景单色。若识别失败则保留原样，不改变 ROM 字库。")
+                        Button("从当前游戏画面校准『劉備』字形") {
+                            showingDisplaySettings = false
+                            gameLanguage = "traditional" // capture the unmodified ROM glyph
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                                showingWordCalibration = true
+                            }
+                        }
+                        Button("清除字形校准") {
+                            GameWordTemplateStore.shared.clear()
+                        }.foregroundColor(.secondary)
+                        Text("简体测试只替换与标定字形一致的‘劉備’；首次需框选原版游戏里的两个字。OCR 失败时不再完全依赖它。不改变游戏 ROM 或存档。")
                             .font(.footnote).foregroundColor(.secondary)
-                        Text("这些是显示层补偿，不修改 ROM、SRAM 或游戏逻辑。地图黑块如果出现误判，可以在这里关闭。")
+                        Text("地图旗帜保护只恢复先前正常显示过、后来异常发黑的色块。如旗帜第一次出现就已经黑，仍需修复 VDP 根因。可随时关闭。")
                             .font(.footnote).foregroundColor(.secondary)
                     }
                     .navigationTitle("显示设置")
                     .navigationBarItems(trailing: Button("完成") { showingDisplaySettings = false })
                 }
+            }
+            .sheet(isPresented: $showingWordCalibration) {
+                GameWordCalibrationView(onSaved: { gameLanguage = "simplified" })
             }
             .onChange(of: scenePhase) { phase in
                 game.setPaused(phase != .active)

@@ -6,7 +6,7 @@ private final class PadTouchControl: UIControl {
     var onRelease: (() -> Void)?
     private var pressed = false {
         didSet { backgroundColor = pressed ? UIColor.orange.withAlphaComponent(0.72)
-                                      : UIColor.darkGray.withAlphaComponent(0.43) }
+                                      : UIColor.darkGray.withAlphaComponent(0.31) }
     }
 
     init(title: String, diameter: CGFloat) {
@@ -15,7 +15,7 @@ private final class PadTouchControl: UIControl {
         layer.cornerRadius = diameter / 2
         layer.borderWidth = 1
         layer.borderColor = UIColor.white.withAlphaComponent(0.55).cgColor
-        backgroundColor = UIColor.darkGray.withAlphaComponent(0.43)
+        backgroundColor = UIColor.darkGray.withAlphaComponent(0.31)
         let label = UILabel(frame: .zero)
         label.text = title
         label.textColor = .white
@@ -81,19 +81,30 @@ struct VirtualPad: View {
             // 48pt was too small on wide phones. Adapt 52..68pt so smaller
             // landscape devices still retain a large touch target.
             let d = min(CGFloat(68), max(CGFloat(52), area.size.width * 0.059))
-            let gap = max(CGFloat(30), d * 0.62)
+            // Three-column cross: left/right and up/down are equally far
+            // from the empty centre. The old 2-button middle row was cramped.
+            let crossGap = min(CGFloat(15), max(CGFloat(9), d * 0.16))
             HStack(alignment: .bottom, spacing: 0) {
-                VStack(spacing: 0) {
-                    PadButton(title: "↑", mask: 0x01, session: session, diameter: d)
-                        .frame(width: d, height: d)
-                    HStack(spacing: gap) {
+                VStack(spacing: crossGap) {
+                    HStack(spacing: crossGap) {
+                        Color.clear.frame(width: d, height: d).allowsHitTesting(false)
+                        PadButton(title: "↑", mask: 0x01, session: session, diameter: d)
+                            .frame(width: d, height: d)
+                        Color.clear.frame(width: d, height: d).allowsHitTesting(false)
+                    }
+                    HStack(spacing: crossGap) {
                         PadButton(title: "←", mask: 0x04, session: session, diameter: d)
                             .frame(width: d, height: d)
+                        Color.clear.frame(width: d, height: d).allowsHitTesting(false)
                         PadButton(title: "→", mask: 0x08, session: session, diameter: d)
                             .frame(width: d, height: d)
                     }
-                    PadButton(title: "↓", mask: 0x02, session: session, diameter: d)
-                        .frame(width: d, height: d)
+                    HStack(spacing: crossGap) {
+                        Color.clear.frame(width: d, height: d).allowsHitTesting(false)
+                        PadButton(title: "↓", mask: 0x02, session: session, diameter: d)
+                            .frame(width: d, height: d)
+                        Color.clear.frame(width: d, height: d).allowsHitTesting(false)
+                    }
                 }
                 Spacer(minLength: 0)
                 VStack(spacing: 9) {

@@ -119,7 +119,18 @@ final class GameTextLocalization {
     func present(_ frame: Data, visibleWidth: Int, simplified: Bool) -> Data {
         guard simplified, frame.count == 320 * 224 * 4 else { reset(); return frame }
         counter += 1
-        if counter % 45 == 1 {
+        // Prefer the native-pixel template explicitly marked by the user.
+        // ROM text is usually 16px bitmap lettering and is unreliable for OCR.
+        if GameWordTemplateStore.shared.isCalibrated {
+            // A template match is performed against the *current* frame, so
+            // menu blink/cursor movement cannot invalidate a stale OCR hash.
+            var output = frame
+            for box in GameWordTemplateStore.shared.find(in: frame, visibleWidth: visibleWidth) {
+                output = GameLocalizedWordPainter.render(output, region: box)
+            }
+            return output
+        }
+        if counter % 20 == 1 {
             lock.lock()
             let shouldScan = !scanning
             if shouldScan { scanning = true }

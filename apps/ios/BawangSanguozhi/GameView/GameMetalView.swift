@@ -34,6 +34,7 @@ final class Renderer: NSObject, MTKViewDelegate {
     private var nextTextureIndex = 0
     private let inFlight = DispatchSemaphore(value: 3)
     private let presentationFilter = GameFramePresentationFilter()
+    private let mapFlagRecovery = GameMapFlagRecovery()
     private let textLocalization = GameTextLocalization()
 
     init(session: GameSession) { self.session = session }
@@ -64,7 +65,7 @@ final class Renderer: NSObject, MTKViewDelegate {
               let descriptor = view.currentRenderPassDescriptor,
               let drawable = view.currentDrawable,
               let command = queue?.makeCommandBuffer() else {
-            if !session.running { presentationFilter.reset(); textLocalization.reset() }
+            if !session.running { presentationFilter.reset(); mapFlagRecovery.reset(); textLocalization.reset() }
             return
         }
         let sourceWidth = max(1, min(320, session.videoWidth))
@@ -74,11 +75,15 @@ final class Renderer: NSObject, MTKViewDelegate {
         presentationFilter.suppressPartialMenuFrames =
             defaults.object(forKey: "BawangPartialMenuDeGlitch") == nil ||
             defaults.bool(forKey: "BawangPartialMenuDeGlitch")
-        presentationFilter.suppressTransientMapBlackTiles =
-            defaults.object(forKey: "BawangMapBlackTileRepair") == nil ||
-            defaults.bool(forKey: "BawangMapBlackTileRepair")
+        // Keep the old generic 8x8 black-square heuristic off: actual flags
+        // contain too few coloured pixels for it to reliably activate.
+        presentationFilter.suppressTransientMapBlackTiles = false
+        GameWordTemplateStore.shared.capture(rawFrame, width: sourceWidth)
         let filtered = presentationFilter.present(rawFrame, visibleWidth: sourceWidth)
-        let frame = textLocalization.present(filtered, visibleWidth: sourceWidth,
+        mapFlagRecovery.enabled = defaults.object(forKey: "BawangMapBlackTileRepair") == nil ||
+            defaults.bool(forKey: "BawangMapBlackTileRepair")
+        let recovered = mapFlagRecovery.present(filtered, visibleWidth: sourceWidth)
+        let frame = textLocalization.present(recovered, visibleWidth: sourceWidth,
                            simplified: defaults.string(forKey: "BawangGameLanguage") == "simplified")
 
         // Completion callbacks return slots in command-buffer submission order.
