@@ -30,6 +30,9 @@ extern "C" const char *exe_relative(const char *name) {
                                       sramPath.fileSystemRepresentation);
     return _started;
 }
+- (void)setSimplifiedLanguage:(BOOL)enabled {
+    bawang_core_set_simplified(enabled ? 1 : 0);
+}
 - (void)stop {
     if (_started) bawang_core_stop();
     _started = NO;

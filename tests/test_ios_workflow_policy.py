@@ -14,6 +14,6 @@ assert "Verify checked-out SMD ROM" in text
 assert "8128fb9828b5474b37f928aed6a771cb2e03457aeb13293d29f3cfb1c83ba6b4" in text
 assert "gh release download" not in text and "GH_TOKEN" not in text
 assert "REPO_PRIVATE" not in text and "rom_release_tag" not in text
-assert "BawangSanguozhi-iOS-0.1.6-Build14" in text
+assert "BawangSanguozhi-iOS-0.1.7-Build15" in text
 assert "retention-days: 7" in text
 print("PASS manual-only workflow with checked-out ROM and expected IPA artifact")

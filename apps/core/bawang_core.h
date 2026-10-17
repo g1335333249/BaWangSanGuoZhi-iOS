@@ -27,6 +27,10 @@ int bawang_core_save_sram_if_changed(const char *path);
 int bawang_core_start(const uint8_t *rom, size_t rom_size,
                       const uint8_t *sram, size_t sram_size);
 int bawang_core_start_file(const char *rom_path, const char *sram_path);
+/* Language switches replace only two glyphs in the in-memory ROM copy.
+ * The selected mode is also applied when the next game session starts.
+ * Already-uploaded VDP tiles update when the game redraws the text. */
+void bawang_core_set_simplified(int enabled);
 void bawang_core_stop(void);
 int bawang_core_frame(uint16_t buttons, uint32_t *argb, size_t stride_pixels);
 /* 48 kHz interleaved stereo PCM for the most recent frame; caller owns copy. */

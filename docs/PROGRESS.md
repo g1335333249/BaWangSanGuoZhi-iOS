@@ -1,6 +1,12 @@
 # 开发进度
 
-版本：0.3.9（2026-10-17，iOS 旗帜呈现保护与字形校准；App 0.1.6 Build 14）
+版本：0.3.10（2026-10-17，内存字库级刘备简体试验；App 0.1.7 Build 15）
+
+## 2026-10-17 iOS 0.1.7 Build 15 字库补丁
+
+- 应用用户提供的增量补丁：在跨平台 C 核心校验并复制原版 ROM 后，只对运行时 `g_rom` 中两个经原始字节验证的 32 字节字模槽位切换繁简；iOS 设置经 Objective-C++ 桥接在帧边界提交选择。磁盘 ROM 和 SRAM 不变。旧 OCR/手动框选界面停止调用，Swift 源文件暂保留。具体偏移和缓存局限见 `docs/PATCH_FONT_0_1_7.md`。
+- `git apply --check`、XcodeGen、`tests/test_bawang_font_overlay.py` 通过：仅 56 个字节在两个允许槽位改变，繁简可逆、重复应用稳定，非法字节不会部分写入。macOS 和 iphoneos ARM64 核心重新编译成功；macOS 600 帧原生烟测 `raw_dispatch_misses=0`、`interpreted_instructions=0`，存储回归通过。iphoneos ARM64 Release 无签名 App 与暂存内置 ROM 的 IPA 校验通过：0.1.7 Build 15，2,830,822 字节、SHA256 `10b01c039f0411ec3a3d484dfe9a14b70e5688accc22c1db3280b280e93414f8`，Bundle ROM SHA256 `e70f0a92c205ea432080cc48c18d1d43b7fc4d45464ed7fb218b119096e7cdd9`。打包时 commit 元数据为补丁前 HEAD，新提交需重新构建才对应最终 SHA。
+- 工作流保持仅 `workflow_dispatch`。仍需真机验证游戏实际字形更新；运行时已上传的 VDP 图块只有在游戏重新取字模并重绘后才会改变。本轮未重跑长期 Co-Simulation；暂存 ROM 和本地 IPA 不提交。
 
 ## 2026-10-17 iOS 0.1.6 Build 14 增量补丁
 

@@ -41,6 +41,9 @@ final class GameSession: ObservableObject {
 
     private func start() {
         virtualInput.reset()
+        // Select native ROM glyphs before core startup (the existing
+        // stored UserDefaults key survives upgrades from previous versions).
+        bridge.setSimplifiedLanguage(UserDefaults.standard.string(forKey: "BawangGameLanguage") == "simplified")
         if running { persistSRAM(); audio.stop(); bridge.stop(); running = false }
         guard bridge.start(withROMPath: SaveManager.romURL.path,
                            sramPath: SaveManager.sramURL.path) else {
@@ -51,6 +54,12 @@ final class GameSession: ObservableObject {
         paused = false
         audio.start()
         message = ""
+    }
+
+    func setSimplifiedLanguage(_ simplified: Bool) {
+        // Applied by the C core at the next frame boundary. Existing VDP
+        // glyph tiles refresh upon the game's next menu/text redraw.
+        bridge.setSimplifiedLanguage(simplified)
     }
 
     func press(_ mask: UInt16) { virtualInput.press(mask) }

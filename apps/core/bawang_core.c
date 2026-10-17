@@ -1,4 +1,6 @@
 #include "bawang_core.h"
+#include "bawang_font_overlay.h"
+#include <stdatomic.h>
 #include "glue.h"
 #include "m68k_interp.h"
 #include "genesis_runtime.h"
@@ -11,6 +13,16 @@
 #include <string.h>
 
 static int running;
+static _Atomic int requested_simplified;
+static int applied_simplified;
+/* Source ROM stays unchanged; glue_init copies verified bytes to g_rom. */
+extern uint8_t g_rom[0x400000];
+
+void bawang_core_set_simplified(int enabled)
+{
+    atomic_store(&requested_simplified, enabled ? 1 : 0);
+}
+
 static uint8_t saved_sram[BAWANG_SRAM_SIZE];
 static int frame_width = 256;
 static int16_t fm_frame[4096 * 2];
@@ -28,6 +40,14 @@ int bawang_core_start(const uint8_t *rom, size_t rom_size,
     if (!bawang_rom_normalize(rom, rom_size, NULL, 0)) return 0;
     machine_init();
     glue_init(rom, (cc_u32l)rom_size);
+    /* Apply glyph-only overlay AFTER original ROM verification and copy,
+     * but BEFORE the first game frame. No ROM file/SRAM writes. */
+    int language = atomic_load(&requested_simplified);
+    if (!bawang_font_overlay_apply(g_rom, BAWANG_ROM_SIZE, language)) {
+        glue_shutdown();
+        return 0;
+    }
+    applied_simplified = language;
     audio_mixer_init();
     gbus_sram_setup(&g_machine.bus);
     if (gbus_sram_size(&g_machine.bus) != 0x10000u) return 0;
@@ -92,6 +112,13 @@ static void receive_scanline(void *ctx, int line, const uint32_t *argb, int widt
 int bawang_core_frame(uint16_t buttons, uint32_t *argb, size_t stride_pixels)
 {
     if (!running || !argb || stride_pixels < 320) return 0;
+    /* UI may select language while a game runs. Apply at the safe frame
+     * boundary rather than from the UI callback while the CPU reads ROM. */
+    int language = atomic_load(&requested_simplified);
+    if (language != applied_simplified) {
+        if (!bawang_font_overlay_apply(g_rom, BAWANG_ROM_SIZE, language)) return 0;
+        applied_simplified = language;
+    }
     memset(argb, 0, stride_pixels * 224u * sizeof(uint32_t));
     FrameSink sink = { argb, stride_pixels, 0 };
     GenesisSimInput input = {0};

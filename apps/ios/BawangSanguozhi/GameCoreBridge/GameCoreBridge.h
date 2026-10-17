@@ -4,6 +4,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface GameCoreBridge : NSObject
 - (BOOL)importROMAtPath:(NSString *)source toPath:(NSString *)destination;
 - (BOOL)startWithROMPath:(NSString *)romPath sramPath:(NSString *)sramPath;
+- (void)setSimplifiedLanguage:(BOOL)enabled;
 - (void)stop;
 - (nullable NSData *)stepWithButtons:(uint16_t)buttons;
 - (nullable NSData *)copyAudio;

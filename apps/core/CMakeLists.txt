@@ -10,7 +10,7 @@ file(GLOB GEN_SOURCES CONFIGURE_DEPENDS "${GEN}/bawang_part*.c")
 list(APPEND GEN_SOURCES "${GEN}/bawang_dispatch.c" "${GEN}/bawang_layout.c"
      "${GEN}/bawang_ram_helper.c")
 add_library(BawangCore STATIC
-  bawang_core.c bawang_storage.c "${ROOT}/apps/macos/bawang_spec.c" ${GEN_SOURCES}
+  bawang_core.c bawang_font_overlay.c bawang_storage.c "${ROOT}/apps/macos/bawang_spec.c" ${GEN_SOURCES}
   "${RUNNER}/chip_trace.c" "${RUNNER}/cmd_server_stub.c"
   "${RUNNER}/netplay/genesis_netplay_identity.c"
   "${RUNNER}/glue.c" "${RUNNER}/fiber_compat.c"
