@@ -8,7 +8,7 @@ final class GameSession: ObservableObject {
     @Published var message = "导入用户持有的 ROM 后开始游戏"
     private let bridge = GameCoreBridge()
     private let audio = GameAudio()
-    private var touchButtons: UInt16 = 0
+    private let virtualInput = VirtualInputState()
     private var frameNumber = 0
     var videoWidth: Int { bridge.videoWidth }
 
@@ -40,6 +40,7 @@ final class GameSession: ObservableObject {
     }
 
     private func start() {
+        virtualInput.reset()
         if running { persistSRAM(); audio.stop(); bridge.stop(); running = false }
         guard bridge.start(withROMPath: SaveManager.romURL.path,
                            sramPath: SaveManager.sramURL.path) else {
@@ -52,18 +53,19 @@ final class GameSession: ObservableObject {
         message = ""
     }
 
-    func press(_ mask: UInt16) { touchButtons |= mask }
-    func release(_ mask: UInt16) { touchButtons &= ~mask }
+    func press(_ mask: UInt16) { virtualInput.press(mask) }
+    func release(_ mask: UInt16) { virtualInput.release(mask) }
 
     func step() -> Data? {
         guard running, !paused else { return nil }
-        let buttons = touchButtons | controllerButtons()
+        let buttons = virtualInput.sample() | controllerButtons()
         guard let image = bridge.step(withButtons: buttons) else {
             persistSRAM()
             message = "游戏核心已停止。"
             audio.stop()
             bridge.stop()
             running = false
+            virtualInput.reset()
             return nil
         }
         if let sound = bridge.copyAudio() { audio.append(sound) }
@@ -78,6 +80,7 @@ final class GameSession: ObservableObject {
             audio.stop()
             bridge.stop()
             running = false
+            virtualInput.reset()
         }
         return image
     }
@@ -90,6 +93,7 @@ final class GameSession: ObservableObject {
     }
 
     func setPaused(_ value: Bool) {
+        if value { virtualInput.reset() }
         guard running, paused != value else { return }
         paused = value
         if value { persistSRAM(); audio.stop() }

@@ -17,6 +17,7 @@
 		3ACE9F8FD178D51B2F189E3D /* GameMetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1644605D22EA52FEA68FF3EC /* GameMetalView.swift */; };
 		4EDC17EE279D378B133928EE /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03AA75B9A6EC881E072C88BC /* GameController.framework */; };
 		5D09463119A0940ECE83E3B3 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8335C138917B4F7BF1856F72 /* MetalKit.framework */; };
+		897E022B4473A485A43FB0A4 /* VirtualInputState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB869D19A02B8C1447BE78A5 /* VirtualInputState.swift */; };
 		A4D0A497DAE6938E951A2401 /* VirtualPad.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68D7BBE02BC36B33E2D9127F /* VirtualPad.swift */; };
 		EA3A74E971A48AC2BBF36591 /* GameSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23841E974FB6A98B65E33DDE /* GameSession.swift */; };
 /* End PBXBuildFile section */
@@ -36,6 +37,7 @@
 		8F8291C6E06F8904F0E63DBB /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		ADFFFF3863FD001EB1CDCDDA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		BE45F00481762062A2E6DD9C /* GameCoreBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameCoreBridge.h; sourceTree = "<group>"; };
+		CB869D19A02B8C1447BE78A5 /* VirtualInputState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualInputState.swift; sourceTree = "<group>"; };
 		F1155C3762F99A5C67A45958 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		F5E2E64A757252C6ABA8AA64 /* BawangSanguozhi.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = BawangSanguozhi.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -135,6 +137,7 @@
 		D6ABA8E1AE6F230C8F09C0BC /* Controls */ = {
 			isa = PBXGroup;
 			children = (
+				CB869D19A02B8C1447BE78A5 /* VirtualInputState.swift */,
 				68D7BBE02BC36B33E2D9127F /* VirtualPad.swift */,
 			);
 			path = Controls;
@@ -212,6 +215,7 @@
 				EA3A74E971A48AC2BBF36591 /* GameSession.swift in Sources */,
 				1EBAB6C1244DB38E35BDE8DD /* GameShaders.metal in Sources */,
 				2FC209674B22C166FED7EEB0 /* SaveManager.swift in Sources */,
+				897E022B4473A485A43FB0A4 /* VirtualInputState.swift in Sources */,
 				A4D0A497DAE6938E951A2401 /* VirtualPad.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -281,7 +285,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/../core";
 				INFOPLIST_FILE = BawangSanguozhi/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -290,7 +294,7 @@
 				);
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = "$(SRCROOT)/../core/build-ios-device";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = "$(SRCROOT)/../core/build-ios-simulator";
-				MARKETING_VERSION = 0.1.1;
+				MARKETING_VERSION = 0.1.2;
 				OTHER_LDFLAGS = "-lBawangCore -lc++";
 				PRODUCT_BUNDLE_IDENTIFIER = com.g1335333249.BawangSanguozhi;
 				PRODUCT_NAME = BawangSanguozhi;
@@ -369,7 +373,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/../core";
 				INFOPLIST_FILE = BawangSanguozhi/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -378,7 +382,7 @@
 				);
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = "$(SRCROOT)/../core/build-ios-device";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = "$(SRCROOT)/../core/build-ios-simulator";
-				MARKETING_VERSION = 0.1.1;
+				MARKETING_VERSION = 0.1.2;
 				OTHER_LDFLAGS = "-lBawangCore -lc++";
 				PRODUCT_BUNDLE_IDENTIFIER = com.g1335333249.BawangSanguozhi;
 				PRODUCT_NAME = BawangSanguozhi;

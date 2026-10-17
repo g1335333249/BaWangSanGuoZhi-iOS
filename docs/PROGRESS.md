@@ -1,6 +1,14 @@
 # 开发进度
 
-版本：0.3.4（2026-10-17，修复干净 Runner 的上游补丁顺序；App 维持 0.1.1 Build 9）
+版本：0.3.5（2026-10-17，修复 iOS 横屏虚拟手柄；App 0.1.2 Build 10）
+
+## 2026-10-17 横屏虚拟手柄紧急修复
+
+- 用户在 iPhone 真机发现：虚拟键显示于横屏顶部，单点不响应、滑动才触发。根因分别是 `VirtualPad` 的 `HStack(alignment: .bottom)` 未占满 `GeometryReader` 的可用高度，以及按下输入仅依赖 `DragGesture(minimumDistance: 0).onChanged`；快速触摸即使产生按下/抬起，也可能在两次 `GameSession.step()` 间被漏采样。
+- `VirtualPad.swift` 改用 UIKit `UIControl` 明确处理 touchDown、touchUpInside/Outside、touchCancel、touchDragEnter/Exit，保持按下橙色反馈；横屏布局明确占满高度并底部对齐，保留左右安全边距。`GameMetalView` 禁止接收触摸，顶部 ROM 导入按钮保持可用。`VirtualInputState.swift` 用锁保护虚拟按键事件，每次按下边沿至少输出 3 个按下帧、连续点击间至少 1 个释放帧；同时保留独立按键和现有 GameController 位掩码组合。暂停、后台或重启时清空虚拟按键状态。
+- `swiftc apps/ios/BawangSanguozhi/Controls/VirtualInputState.swift tests/virtual_input_state_test.swift -o /tmp/bawang-virtual-input-test && /tmp/bawang-virtual-input-test` **通过**：A/START 快速触摸、方向键长按与释放、连续两次 A、右+C 同按、取消和暂停重置。触摸事件本身尚未通过自动注入测试，不能以此宣称真机手感已验证。
+- XcodeGen 重新生成项目，iOS Simulator Debug 与 iphoneos ARM64 Release 无签名 `xcodebuild` 均 **BUILD SUCCEEDED**，复用现有核心静态库、未重新生成 ROM 代码。打包器核对本地 IPA 为 `BawangSanguozhi-0.1.2-build10-unsigned.ipa`，2,346,151 字节，App 内 BIN SHA256 仍为 `e70f0a92c205ea432080cc48c18d1d43b7fc4d45464ed7fb218b119096e7cdd9`。隔离 iPhone 17 Pro 模拟器安装并启动内置 ROM 后，截图确认为真实《霸王三国志》开场 VDP 画面、方向键左下、A/B/C 右下、START 在其上，顶部无虚拟键；截图仅在本机 `/tmp/bawang-build10-landscape-correct.png`，未提交。隔离模拟器已删除。
+- App 版本同步升为 **0.1.2 Build 10**，设备 IPA 文件名及手动 Actions Artifact 名称同步更新；`tests/test_ios_workflow_policy.py` 通过，工作流仍只有 `workflow_dispatch`。本轮未运行 M2/M3 长游戏回归。下一步：用户下载新手动构建包并在真机复验单点、连续点击和同时按键，尤其确认 iOS 触摸取消事件与实际菜单行为。
 
 ## 2026-10-17 手动 Actions 首次运行修复
 
