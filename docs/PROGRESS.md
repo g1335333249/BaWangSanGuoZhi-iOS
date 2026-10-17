@@ -1,6 +1,12 @@
 # 开发进度
 
-版本：0.3.3（2026-10-17，手动 GitHub Actions 改为直接从仓库 ROM 构建；App 维持 0.1.1 Build 9）
+版本：0.3.4（2026-10-17，修复干净 Runner 的上游补丁顺序；App 维持 0.1.1 Build 9）
+
+## 2026-10-17 手动 Actions 首次运行修复
+
+- 用户手动触发的 [运行 #1](https://github.com/g1335333249/BaWangSanGuoZhi-iOS/actions/runs/39014467082) 使用提交 `3b0ad4b`；checkout、Xcode 26.6 检查和仓库 SMD SHA256 校验均成功，随后在 `scripts/bootstrap_upstream.sh` 应用 `m68k-m2-codegen.patch` 时失败，后续生成与 IPA 步骤未执行，故该运行没有 Artifact。
+- 根因：`m68k-m2-codegen.patch` 曾以未打 RTR 补丁的原始生成器为基准制作，同时包含 `m68k-rtr-return.patch` 的同一 RTR hunk。本机已有两个补丁，重复应用检查遮蔽了干净检出的冲突。现以先打 RTR 补丁的文件为基准重新生成 M2 补丁，未改变最终生成器字节或游戏逻辑。
+- `tests/test_upstream_patch_order.py` 在原始子模块文件上按脚本顺序应用 RTR、M2 补丁并比对最终字节；本机通过。另用全新 `git clone --recursive` 的固定上游提交依次验证全部六个补丁均成功应用；`sh scripts/apply_upstream_patches.sh` 的已有检出重复应用检查通过，工作流策略测试通过。修复提交推送后需重新手动触发工作流，验证代码生成、设备构建及 Artifact 上传；尚不能把首次失败运行报告为 IPA 构建成功。
 
 ## 2026-10-17 仓库 ROM 与一键构建
 

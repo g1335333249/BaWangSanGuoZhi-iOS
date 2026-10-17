@@ -1,8 +1,7 @@
 diff --git a/profiles/genesis/code_generator.c b/profiles/genesis/code_generator.c
-index 86f6078..6ec2257 100644
 --- a/profiles/genesis/code_generator.c
 +++ b/profiles/genesis/code_generator.c
-@@ -341,15 +341,9 @@ void codegen_set_dump_functions_path(const char *path) {
+@@ -341,15 +341,9 @@
      s_dump_functions_path = path;
  }
  
@@ -21,7 +20,7 @@ index 86f6078..6ec2257 100644
  static bool g_yield_in_next_bne = false;
  
  static const char *size_write_fn(M68KSize sz) {
-@@ -2344,6 +2338,10 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+@@ -2344,6 +2338,10 @@
  
      /* ------------------------------------------------------------------ */
      case MN_RTS:
@@ -32,27 +31,7 @@ index 86f6078..6ec2257 100644
          /* A stack skip can discard MORE than one return slot (SMPS's
           * stop-track command uses addq.w #8,sp). Carry the complete count
           * through the C callers; a boolean loses the second unwind and
-@@ -2427,13 +2425,16 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
-     /* ------------------------------------------------------------------ */
-     case MN_RTR:
-         /* Pop CCR (low byte of pushed word) then PC, like RTE but only
--         * the user-visible CCR bits get restored. Mirrors the RTE
--         * propagation idiom so unwind reaches the original caller. */
-+         * the user-visible CCR bits get restored. Unlike RTE this can be
-+         * a subroutine return (e.g. a PHP/PLP-style CCR wrapper). The guest
-+         * return PC is already popped here, so the generated JSR caller
-+         * observes slot_sp+4 and resumes after the call. Propagating
-+         * g_rte_pending would incorrectly unwind that caller as well. */
-         fprintf(f, "  { uint16_t _ccrw = (uint16_t)m68k_read16(g_cpu.A[7]); g_cpu.A[7] += 2;\n");
-         fprintf(f, "    g_cpu.SR = (uint16_t)((g_cpu.SR & 0xFF00u) | (_ccrw & 0x00FFu)); }\n");
-         fprintf(f, "  g_cpu.PC = m68k_read32(g_cpu.A[7]); g_cpu.A[7] += 4;\n");
-         emit_cycle_accounting(f, "  ", estimate_cycles(instr));
--        fprintf(f, "  g_rte_pending = 1; return; /* RTR */\n");
-+        fprintf(f, "  return; /* RTR: PC already popped; caller resumes */\n");
-         *skip_until_label = true;
-         break;
- 
-@@ -2499,6 +2500,7 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+@@ -2502,6 +2500,7 @@
              function_finder_pops_return_unconditionally(rom, instr->target_addr)) {
              fprintf(f, "  recomp_push_return(0x%06Xu); /* JSR push (callee captures return) */\n",
                      ret_addr);
@@ -60,7 +39,7 @@ index 86f6078..6ec2257 100644
              fprintf(f, "  { int _saved_split_sp_popped = g_split_sp_popped; g_split_sp_popped = 0;\n");
              if (func_is_known(instr->target_addr))
                  fprintf(f, "    recomp_call_func(func_%06X);\n", instr->target_addr);
-@@ -2507,7 +2509,6 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+@@ -2510,7 +2509,6 @@
              fprintf(f, "    g_split_sp_popped = _saved_split_sp_popped;\n");
              fprintf(f, "  }\n");
              fprintf(f, "  g_rte_pending = 0; /* callee captured our return; handled here */\n");
@@ -68,7 +47,7 @@ index 86f6078..6ec2257 100644
              fprintf(f, "  return; /* callee captured return addr: no pop, no fall-through */\n");
              *skip_until_label = true;
              break;
-@@ -2521,6 +2522,7 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+@@ -2524,6 +2522,7 @@
          fprintf(f, "  uint32_t _jsr_slot_sp_%06X = g_cpu.A[7];\n", addr);
  
          if (instr->has_target) {
@@ -76,7 +55,7 @@ index 86f6078..6ec2257 100644
              fprintf(f, "  { int _saved_split_sp_popped = g_split_sp_popped; g_split_sp_popped = 0;\n");
              if (func_is_known(bsr_target))
                  fprintf(f, "    recomp_call_func(func_%06X);\n", bsr_target);
-@@ -2533,6 +2535,7 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+@@ -2536,6 +2535,7 @@
                     (mode == 7 && reg <= 3)) {
              char ae[256];
              emit_ea_addr_ex(f, instr, ea, &er, ae, true);
@@ -84,7 +63,7 @@ index 86f6078..6ec2257 100644
              fprintf(f, "  { int _saved_split_sp_popped = g_split_sp_popped; g_split_sp_popped = 0;\n");
              fprintf(f, "    recomp_call_addr(%s);\n", ae);
              fprintf(f, "    g_split_sp_popped = _saved_split_sp_popped;\n");
-@@ -2541,6 +2544,7 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+@@ -2544,6 +2544,7 @@
              codegen_diag_record(CGD_TODO_DYNAMIC_JSR_UNSUPPORTED, addr,
                                  instr->words[0], instr->mnemonic,
                                  func_name, func_addr);
@@ -92,7 +71,7 @@ index 86f6078..6ec2257 100644
              fprintf(f, "  /* TODO: dynamic JSR/BSR EA %d/%d */\n", mode, reg);
          }
  
-@@ -2577,9 +2581,16 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+@@ -2580,9 +2581,16 @@
           * Doing our pop here would double-adjust A7 by +4. Skipping the
           * pop keeps A7 in sync with hardware. Consume one skipped return
           * slot; additional skipped slots continue through outer callers. */
@@ -112,7 +91,7 @@ index 86f6078..6ec2257 100644
          fprintf(f,
                  "  if (g_cpu.A[7] != (uint32_t)(_jsr_slot_sp_%06X + 4u))\n"
                  "    g_cpu.A[7] += 4; /* normal JSR pop */\n"
-@@ -3275,7 +3286,12 @@ static void emit_instr(FILE *f, const GenesisRom *rom,
+@@ -3278,7 +3286,12 @@
           * PSGSetFreq — corrupting downstream Bcc paths that read X
           * (squelched notes, drift). */
          ExtReader er2; er_init(&er2, instr);
@@ -126,7 +105,7 @@ index 86f6078..6ec2257 100644
          fprintf(f, "  g_cpu.SR = (g_cpu.SR & ~0x0Fu) | (1u<<2);\n");
          break;
      }
-@@ -4926,6 +4942,11 @@ bool codegen_emit(const GenesisRom *rom, const FunctionList *funcs,
+@@ -4929,6 +4942,11 @@
                      has_sp_adjust = 1;
                      break;
                  }
@@ -138,7 +117,7 @@ index 86f6078..6ec2257 100644
                  if (pre.size == M68K_SIZE_L && pre.mnemonic == MN_MOVEM) {
                      int dir = (pre.words[0] >> 10) & 1;
                      int mode = (pre.src_ea >> 3) & 7;
-@@ -5056,36 +5077,25 @@ bool codegen_emit(const GenesisRom *rom, const FunctionList *funcs,
+@@ -5059,36 +5077,25 @@
                  continue;
              }
  
@@ -190,7 +169,7 @@ index 86f6078..6ec2257 100644
              if (s_reverse_debug)
                  fprintf(f_func, "  rdb_on_insn(0x%06Xu);\n", pc);
              emit_instr(f_func, rom, &instr, &instrs, &skip_until_label, &has_sp_adjust,
-@@ -5099,7 +5109,8 @@ bool codegen_emit(const GenesisRom *rom, const FunctionList *funcs,
+@@ -5102,7 +5109,8 @@
               * matching the interpreter's interrupt-driven behavior. */
              {
                  int cyc = estimate_cycles(&instr);
@@ -200,7 +179,7 @@ index 86f6078..6ec2257 100644
              }
  
              /* Two valid entry streams can overlap in ROM. Sorted emission
-@@ -5322,6 +5333,7 @@ bool codegen_emit(const GenesisRom *rom, const FunctionList *funcs,
+@@ -5325,6 +5333,7 @@
          "    g_recomp_tail_frame->pending = 1;\n"
          "}\n\n"
          "static void recomp_dispatch_once(uint32_t addr) {\n"
