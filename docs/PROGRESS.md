@@ -1,6 +1,12 @@
 # 开发进度
 
-版本：0.3.2（2026-10-17，M3 最低流程已打通，iOS App 0.1.1 Build 9 支持可选内置 ROM；全游戏及真机未验收）
+版本：0.3.3（2026-10-17，手动 GitHub Actions 改为直接从仓库 ROM 构建；App 维持 0.1.1 Build 9）
+
+## 2026-10-17 仓库 ROM 与一键构建
+
+- 用户本轮明确授权将指定原始 SMD 随代码推送。`input/霸王三国志.smd` 实际大小 **1,049,088 字节**，SHA256 `8128fb9828b5474b37f928aed6a771cb2e03457aeb13293d29f3cfb1c83ba6b4`；本地转换 BIN 1,048,576 字节，SHA256 `e70f0a92c205ea432080cc48c18d1d43b7fc4d45464ed7fb218b119096e7cdd9`。`.gitignore` 只放行这个 SMD，仍忽略其他输入、BIN、SRAM、IPA 与生成代码。ROM 必须以实际二进制文件提交，不使用 LFS 指针。
+- `.github/workflows/build-unsigned-ipa.yml` 保持唯一 `workflow_dispatch` 入口，删除私有仓库检查、Release Asset 下载和令牌/输入参数。`actions/checkout` 后直接验证 SMD 内容与大小；随后沿用固定上游补丁、GenesisRecomp、32 C 分片、iphoneos ARM64 核心、XcodeGen 和未签名 IPA 的既有构建流程。Artifact 名称改为 `BawangSanguozhi-iOS-0.1.1-Build9`，保留 7 天；版本与 Bundle ID 不变。
+- 本轮按 CI 顺序在本机再次执行：`scripts/bootstrap_upstream.sh` 的全部补丁已应用、固定重编译器构建通过、`scripts/generate.sh` 生成 **32** 个 C 分片、iphoneos ARM64 Release `libBawangCore.a` 构建通过、XcodeGen 资源阶段和 `xcodebuild` 真机 Release 构建通过。`package_unsigned_ipa.py` 生成的本地未签名 IPA **2,343,443 字节**，内置 BIN SHA256 再次核对为 `e70f0a92c205ea432080cc48c18d1d43b7fc4d45464ed7fb218b119096e7cdd9`。`tests/test_ios_workflow_policy.py` 验证唯一手动触发及仓库 ROM 路径。此前完整游戏、Co-Simulation、内政与存档回归不重复运行。远程手动运行的实际日志和 Artifact URL 在推送后补录。
 
 ## 2026-10-17 Build 9 内置 ROM 与手动私有 IPA 构建
 

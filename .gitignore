@@ -1,4 +1,4 @@
-input/
+input/*
 analysis/
 third_party/
 games/*/build/
@@ -8,6 +8,7 @@ apps/*/build-*/
 *.o
 *.bin
 *.smd
+!input/霸王三国志.smd
 *.srm
 apps/ios/BawangSanguozhi/Resources/bawang_sanguozhi.bin
 *.ipa

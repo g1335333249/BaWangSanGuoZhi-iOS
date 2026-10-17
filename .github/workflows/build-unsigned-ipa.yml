@@ -2,11 +2,6 @@ name: Build Bawang Sanguozhi Unsigned IPA
 
 on:
   workflow_dispatch:
-    inputs:
-      rom_release_tag:
-        description: Private release tag containing bawang_sanguozhi.smd
-        required: true
-        default: private-rom
 
 permissions:
   contents: read
@@ -15,15 +10,6 @@ jobs:
   build:
     runs-on: macos-26
     steps:
-      - name: Require a private repository
-        env:
-          REPO_PRIVATE: ${{ github.event.repository.private }}
-        run: |
-          if [ "$REPO_PRIVATE" != "true" ]; then
-            echo "ROM-bearing builds and artifacts are allowed only in a Private repository." >&2
-            exit 1
-          fi
-
       - uses: actions/checkout@v4
 
       - name: Select and verify Xcode 26.6 toolchain
@@ -38,24 +24,20 @@ jobs:
           if ! command -v xcodegen >/dev/null; then brew install xcodegen; fi
           xcodegen --version
 
-      - name: Download privately held ROM release asset
-        env:
-          GH_TOKEN: ${{ github.token }}
-          ROM_RELEASE_TAG: ${{ inputs.rom_release_tag }}
+      - name: Verify checked-out SMD ROM
         run: |
-          mkdir -p input
-          gh release download "$ROM_RELEASE_TAG" \
-            --repo "$GITHUB_REPOSITORY" \
-            --pattern bawang_sanguozhi.smd --dir input --clobber || {
-              echo "Private ROM release or bawang_sanguozhi.smd asset missing." >&2
-              exit 1
-            }
-          test -f input/bawang_sanguozhi.smd || {
-            echo "Private Release Asset bawang_sanguozhi.smd is required." >&2
-            exit 1
-          }
-          mv input/bawang_sanguozhi.smd input/霸王三国志.smd
-          python3 scripts/smd_to_bin.py input/霸王三国志.smd -o input/bawang_sanguozhi.bin
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          rom = Path('input/霸王三国志.smd')
+          expected = '8128fb9828b5474b37f928aed6a771cb2e03457aeb13293d29f3cfb1c83ba6b4'
+          if not rom.is_file() or rom.stat().st_size != 1049088:
+              raise SystemExit('Checked-out SMD ROM is missing or has the wrong size')
+          actual = hashlib.sha256(rom.read_bytes()).hexdigest()
+          if actual != expected:
+              raise SystemExit(f'SMD ROM SHA256 mismatch: {actual}')
+          print(f'Checked-out SMD ROM SHA256: {actual}')
+          PY
 
       - name: Bootstrap pinned recompiler and apply M2/M3 patches
         run: |
@@ -98,19 +80,10 @@ jobs:
             --app apps/ios/build-device/Build/Products/Release-iphoneos/BawangSanguozhi.app \
             --output-dir apps/ios/build-device/ipa --commit "$GITHUB_SHA"
 
-      - name: Upload IPA only from private repository
-        if: ${{ github.event.repository.private }}
+      - name: Upload unsigned IPA
         uses: actions/upload-artifact@v4
         with:
-          name: BawangSanguozhi-iOS-Unsigned-v0.1.1-build9
+          name: BawangSanguozhi-iOS-0.1.1-Build9
           path: apps/ios/build-device/ipa/BawangSanguozhi-0.1.1-build9-unsigned.ipa
           retention-days: 7
           if-no-files-found: error
-
-      - name: Upload build summary without ROM
-        if: ${{ github.event.repository.private }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: BawangSanguozhi-build-summary-v0.1.1-build9
-          path: apps/ios/build-device/ipa/build-summary.json
-          retention-days: 7

@@ -1,6 +1,6 @@
 # iOS 原生运行器构建
 
-工程依赖当前仓库的真实 ROM 静态生成代码；ROM、生成代码、存档和截图均留在本机。上游框架许可证为 PolyForm Noncommercial 1.0.0，游戏资源权利独立存在。
+工程依赖仓库内 `input/霸王三国志.smd` 生成的真实 ROM 静态代码。按用户本轮授权，指定 SMD 随仓库管理；转换 BIN、生成代码、存档和截图仍只留在构建目录。上游框架许可证为 PolyForm Noncommercial 1.0.0，游戏资源权利独立存在。
 
 ## 生成核心
 
@@ -49,7 +49,7 @@ xcodebuild -project apps/ios/BawangSanguozhi.xcodeproj \
 
 ## 可选内置 ROM 与本机未签名 IPA
 
-只有在私有测试环境使用用户持有的 ROM。`apps/ios/BawangSanguozhi/Resources/bawang_sanguozhi.bin` 被 Git 忽略；缺少它时 XcodeGen 仍能生成可手动导入 ROM 的 App。
+`apps/ios/BawangSanguozhi/Resources/bawang_sanguozhi.bin` 被 Git 忽略；缺少它时 XcodeGen 仍能生成可手动导入 ROM 的 App。手动 CI 构建会从仓库中检出的指定 SMD 生成 BIN 并放入该资源位置。
 
 ```sh
 python3 scripts/smd_to_bin.py input/霸王三国志.smd -o input/bawang_sanguozhi.bin
@@ -68,18 +68,8 @@ python3 scripts/package_unsigned_ipa.py \
 
 打包器检查实际 `Payload/BawangSanguozhi.app`、iOS ARM64 Mach-O、版本、Bundle ID、原生核心符号和 ROM SHA256。SRAM 始终保存在 Application Support，不写入 Bundle。构建普通无 ROM 版本前运行 `python3 scripts/prepare_ios_bundle_rom.py --clear`，然后重新执行 `xcodegen generate` 与 `xcodebuild`。**未签名 IPA 需要有效签名后才能安装到普通 iPhone。**
 
-## 私有 GitHub Actions 构建
+## GitHub Actions 一键构建
 
-`.github/workflows/build-unsigned-ipa.yml` 仅支持手动 `workflow_dispatch`，在公开仓库会于读取 ROM 前拒绝执行。请另建**私有**代码镜像仓库，并在该私有仓库的 `private-rom` Release 上传名为 `bawang_sanguozhi.smd` 的用户持有 ROM。示例命令（将仓库名替换成自己的私有仓库；下列命令不会自动执行）：
+`.github/workflows/build-unsigned-ipa.yml` 仅支持手动 `workflow_dispatch`。在仓库的 Actions 页面选择 **Build Bawang Sanguozhi Unsigned IPA → Run workflow**；无需 ROM 链接、Secret 或私有 Release。工作流直接校验检出的 `input/霸王三国志.smd` SHA256，使用 `scripts/generate.sh` 转换标准 BIN 并重生 32 个 C 分片，然后构建 iphoneos ARM64 核心和 App、校验 Payload/ROM，并上传 `BawangSanguozhi-iOS-0.1.1-Build9` Artifact，保留 7 天。
 
-```sh
-gh repo create YOUR_ACCOUNT/BaWangSanGuoZhi-iOS-private --private
-git remote add private git@github.com:YOUR_ACCOUNT/BaWangSanGuoZhi-iOS-private.git
-git push private main
-cp input/霸王三国志.smd input/bawang_sanguozhi.smd
-gh release create private-rom input/bawang_sanguozhi.smd \
-  --repo YOUR_ACCOUNT/BaWangSanGuoZhi-iOS-private \
-  --title 'Private ROM input' --notes 'Private build input' --latest=false
-```
-
-确认私有仓库及 Release Asset 的权限后，在私有仓库 Actions 页面手动运行 **Build Bawang Sanguozhi Unsigned IPA**。工作流用该仓库的 `GITHUB_TOKEN`（`contents: read`）下载 Release Asset，构建并验证后仅在私有仓库上传 `BawangSanguozhi-iOS-Unsigned-v0.1.1-build9`，保留 7 天。当前公开仓库不能安全运行含 ROM 的构建，也不会上传该 IPA。Runner 采用 `macos-26` ARM64 并明确选择 Xcode 26.6；GitHub Runner [镜像清单](https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md)列有该版本。实际 Actions 运行结果需在私有仓库设置后验证。
+Runner 使用 `macos-26` ARM64，并明确选择 Xcode 26.6；GitHub Runner [镜像清单](https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md)列有该版本。未签名 IPA 下载后仍需有效签名才可在普通 iPhone 安装。GitHub Actions 的实际执行记录与 Artifact 地址应以本次手动运行结果为准。
