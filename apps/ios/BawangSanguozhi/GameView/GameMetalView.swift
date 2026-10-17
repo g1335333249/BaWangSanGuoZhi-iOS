@@ -29,7 +29,11 @@ final class Renderer: NSObject, MTKViewDelegate {
     private let session: GameSession
     private var pipeline: MTLRenderPipelineState?
     private var queue: MTLCommandQueue?
-    private var texture: MTLTexture?
+    // Keep each CPU upload away from textures still being sampled by the GPU.
+    private var textures: [MTLTexture] = []
+    private var nextTextureIndex = 0
+    private let inFlight = DispatchSemaphore(value: 3)
+    private let presentationFilter = GameFramePresentationFilter()
 
     init(session: GameSession) { self.session = session }
 
@@ -47,42 +51,62 @@ final class Renderer: NSObject, MTKViewDelegate {
         let image = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .bgra8Unorm,
             width: 320, height: 224, mipmapped: false)
         image.usage = [.shaderRead]
-        texture = device.makeTexture(descriptor: image)
+        image.storageMode = .shared
+        textures = (0..<3).compactMap { _ in device.makeTexture(descriptor: image) }
+        if textures.count != 3 { textures.removeAll() }
     }
 
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
 
     func draw(in view: MTKView) {
-        guard let bytes = session.step(), let texture, let pipeline,
+        guard let rawFrame = session.step(), textures.count == 3, let pipeline,
               let descriptor = view.currentRenderPassDescriptor,
               let drawable = view.currentDrawable,
-              let command = queue?.makeCommandBuffer(),
-              let encoder = command.makeRenderCommandEncoder(descriptor: descriptor) else { return }
+              let command = queue?.makeCommandBuffer() else {
+            if !session.running { presentationFilter.reset() }
+            return
+        }
+        let sourceWidth = max(1, min(320, session.videoWidth))
+        // These switches are user-accessible because the map-blackout fix is
+        // deliberately presentation-level until the VDP root cause is traced.
+        let defaults = UserDefaults.standard
+        presentationFilter.suppressPartialMenuFrames =
+            defaults.object(forKey: "BawangPartialMenuDeGlitch") == nil ||
+            defaults.bool(forKey: "BawangPartialMenuDeGlitch")
+        presentationFilter.suppressTransientMapBlackTiles =
+            defaults.object(forKey: "BawangMapBlackTileRepair") == nil ||
+            defaults.bool(forKey: "BawangMapBlackTileRepair")
+        let frame = presentationFilter.present(rawFrame, visibleWidth: sourceWidth)
 
-        bytes.withUnsafeBytes { raw in
+        // Completion callbacks return slots in command-buffer submission order.
+        inFlight.wait()
+        let texture = textures[nextTextureIndex]
+        nextTextureIndex = (nextTextureIndex + 1) % textures.count
+        frame.withUnsafeBytes { raw in
             if let base = raw.baseAddress {
                 texture.replace(region: MTLRegionMake2D(0, 0, 320, 224), mipmapLevel: 0,
                     withBytes: base, bytesPerRow: 320 * 4)
             }
         }
+        guard let encoder = command.makeRenderCommandEncoder(descriptor: descriptor) else {
+            inFlight.signal()
+            return
+        }
 
-        let sourceWidth = max(1, min(320, session.videoWidth))
-        let canvasWidth = max(1, Int(view.drawableSize.width))
-        let canvasHeight = max(1, Int(view.drawableSize.height))
-        // Leave the sidebars for touch controls, then scale by whole pixels.
-        let availableWidth = max(sourceWidth, Int(Double(canvasWidth) * 0.60))
-        let scale = max(1, min(availableWidth / sourceWidth, canvasHeight / 224))
-        let x = Float(sourceWidth * scale) / Float(canvasWidth)
-        let y = Float(224 * scale) / Float(canvasHeight)
-        var rectangle = SIMD4<Float>(-x, -y, x, y)
+        let halfSize = GameDisplayGeometry.normalizedHalfSize(
+            canvasWidth: Float(view.drawableSize.width),
+            canvasHeight: Float(view.drawableSize.height),
+            sourceWidth: Float(sourceWidth))
+        var rectangle = SIMD4<Float>(-halfSize.0, -halfSize.1, halfSize.0, halfSize.1)
         var rightUV = Float(sourceWidth) / 320.0
-
         encoder.setRenderPipelineState(pipeline)
         encoder.setVertexBytes(&rectangle, length: MemoryLayout.size(ofValue: rectangle), index: 0)
         encoder.setVertexBytes(&rightUV, length: MemoryLayout.size(ofValue: rightUV), index: 1)
         encoder.setFragmentTexture(texture, index: 0)
         encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
         encoder.endEncoding()
+        let limiter = inFlight
+        command.addCompletedHandler { _ in limiter.signal() }
         command.present(drawable)
         command.commit()
     }

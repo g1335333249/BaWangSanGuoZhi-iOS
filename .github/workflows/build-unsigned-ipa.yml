@@ -83,7 +83,7 @@ jobs:
       - name: Upload unsigned IPA
         uses: actions/upload-artifact@v4
         with:
-          name: BawangSanguozhi-iOS-0.1.3-Build11
-          path: apps/ios/build-device/ipa/BawangSanguozhi-0.1.3-build11-unsigned.ipa
+          name: BawangSanguozhi-iOS-0.1.4-Build12
+          path: apps/ios/build-device/ipa/BawangSanguozhi-0.1.4-build12-unsigned.ipa
           retention-days: 7
           if-no-files-found: error

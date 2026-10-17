@@ -14,10 +14,12 @@
 		1EBAB6C1244DB38E35BDE8DD /* GameShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 63BB4F096639F028A2BD3865 /* GameShaders.metal */; };
 		2FC209674B22C166FED7EEB0 /* SaveManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EF854047A3791E71393F14A /* SaveManager.swift */; };
 		3576C1995C4810CCAFA6E6C6 /* GameCoreBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 761A993840AE7DCF5F44ACA4 /* GameCoreBridge.mm */; };
+		38481F58FB4E43387E312E94 /* GameFramePresentationFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A87CB7F0F2BB43EA08C4FFC /* GameFramePresentationFilter.swift */; };
 		3ACE9F8FD178D51B2F189E3D /* GameMetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1644605D22EA52FEA68FF3EC /* GameMetalView.swift */; };
 		4EDC17EE279D378B133928EE /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03AA75B9A6EC881E072C88BC /* GameController.framework */; };
 		5D09463119A0940ECE83E3B3 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8335C138917B4F7BF1856F72 /* MetalKit.framework */; };
 		897E022B4473A485A43FB0A4 /* VirtualInputState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB869D19A02B8C1447BE78A5 /* VirtualInputState.swift */; };
+		96AE6861CE7D045A5661FC9D /* GameDisplayGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2240B2E373049A054B7EC65F /* GameDisplayGeometry.swift */; };
 		A4D0A497DAE6938E951A2401 /* VirtualPad.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68D7BBE02BC36B33E2D9127F /* VirtualPad.swift */; };
 		EA3A74E971A48AC2BBF36591 /* GameSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23841E974FB6A98B65E33DDE /* GameSession.swift */; };
 /* End PBXBuildFile section */
@@ -27,6 +29,7 @@
 		0F22CA634519A235F60F99E3 /* BawangApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BawangApp.swift; sourceTree = "<group>"; };
 		1644605D22EA52FEA68FF3EC /* GameMetalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameMetalView.swift; sourceTree = "<group>"; };
 		1EF854047A3791E71393F14A /* SaveManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveManager.swift; sourceTree = "<group>"; };
+		2240B2E373049A054B7EC65F /* GameDisplayGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameDisplayGeometry.swift; sourceTree = "<group>"; };
 		23841E974FB6A98B65E33DDE /* GameSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSession.swift; sourceTree = "<group>"; };
 		3F9281B98CFAEED1D8F37E15 /* GameAudio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameAudio.swift; sourceTree = "<group>"; };
 		63BB4F096639F028A2BD3865 /* GameShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = GameShaders.metal; sourceTree = "<group>"; };
@@ -35,6 +38,7 @@
 		8233BC89D3FF6C5AFBE8205D /* BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
 		8335C138917B4F7BF1856F72 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		8F8291C6E06F8904F0E63DBB /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		9A87CB7F0F2BB43EA08C4FFC /* GameFramePresentationFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameFramePresentationFilter.swift; sourceTree = "<group>"; };
 		ADFFFF3863FD001EB1CDCDDA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		BE45F00481762062A2E6DD9C /* GameCoreBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameCoreBridge.h; sourceTree = "<group>"; };
 		CB869D19A02B8C1447BE78A5 /* VirtualInputState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualInputState.swift; sourceTree = "<group>"; };
@@ -105,6 +109,8 @@
 		B6771849AD0BB9692419E1B7 /* GameView */ = {
 			isa = PBXGroup;
 			children = (
+				2240B2E373049A054B7EC65F /* GameDisplayGeometry.swift */,
+				9A87CB7F0F2BB43EA08C4FFC /* GameFramePresentationFilter.swift */,
 				1644605D22EA52FEA68FF3EC /* GameMetalView.swift */,
 			);
 			path = GameView;
@@ -211,6 +217,8 @@
 				0D8FC594E7A77B1D766CB30B /* BawangApp.swift in Sources */,
 				1DA2818D6973997B5219EFE3 /* GameAudio.swift in Sources */,
 				3576C1995C4810CCAFA6E6C6 /* GameCoreBridge.mm in Sources */,
+				96AE6861CE7D045A5661FC9D /* GameDisplayGeometry.swift in Sources */,
+				38481F58FB4E43387E312E94 /* GameFramePresentationFilter.swift in Sources */,
 				3ACE9F8FD178D51B2F189E3D /* GameMetalView.swift in Sources */,
 				EA3A74E971A48AC2BBF36591 /* GameSession.swift in Sources */,
 				1EBAB6C1244DB38E35BDE8DD /* GameShaders.metal in Sources */,
@@ -285,7 +293,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/../core";
 				INFOPLIST_FILE = BawangSanguozhi/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -294,7 +302,7 @@
 				);
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = "$(SRCROOT)/../core/build-ios-device";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = "$(SRCROOT)/../core/build-ios-simulator";
-				MARKETING_VERSION = 0.1.3;
+				MARKETING_VERSION = 0.1.4;
 				OTHER_LDFLAGS = "-lBawangCore -lc++";
 				PRODUCT_BUNDLE_IDENTIFIER = com.g1335333249.BawangSanguozhi;
 				PRODUCT_NAME = BawangSanguozhi;
@@ -373,7 +381,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/../core";
 				INFOPLIST_FILE = BawangSanguozhi/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -382,7 +390,7 @@
 				);
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = "$(SRCROOT)/../core/build-ios-device";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = "$(SRCROOT)/../core/build-ios-simulator";
-				MARKETING_VERSION = 0.1.3;
+				MARKETING_VERSION = 0.1.4;
 				OTHER_LDFLAGS = "-lBawangCore -lc++";
 				PRODUCT_BUNDLE_IDENTIFIER = com.g1335333249.BawangSanguozhi;
 				PRODUCT_NAME = BawangSanguozhi;

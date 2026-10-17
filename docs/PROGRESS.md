@@ -1,6 +1,12 @@
 # 开发进度
 
-版本：0.3.6（2026-10-17，批量补齐静态指针表入口；App 0.1.3 Build 11）
+版本：0.3.7（2026-10-17，iOS 显示与虚拟按键补丁；App 0.1.4 Build 12）
+
+## 2026-10-17 iOS 0.1.4 Build 12 整合补丁
+
+- 应用用户提供的整合补丁：新增显示尺寸计算与可关闭的异常帧过滤器、Metal 三纹理轮换、虚拟按键尺寸和透明度调整、显示设置入口，并同步 XcodeGen、IPA 打包器及手动 Actions Artifact 的版本。未改动 68000 游戏核心、SRAM 格式或自动生成的 C 分片。补丁本身的说明及显示补偿边界见 `docs/PATCH_DISPLAY_0_1_4.md`。
+- `git apply --check` 和 `git apply` 通过；`xcodegen generate --spec apps/ios/project.yml` 成功。`tests/test_ios_presentation_filter.swift` 本地可执行测试、`tests/test_ios_workflow_policy.py` 通过。iphoneos ARM64 Release 无签名构建成功；将 SHA256 正确的标准 BIN 作为可选 Bundle 资源暂存后再次构建成功。`scripts/package_unsigned_ipa.py` 验证 0.1.4 Build 12 的未签名 IPA 内含正确 ROM，文件大小 2,815,179 字节、SHA256 `1bf41241cd52f587b9b61e22adca434ee1cb6bf6be8186d92799df6cad38bf6c`（打包时记录的是应用补丁前的 HEAD；本轮提交后应重新构建以对应新提交）。本地 IPA 与暂存的 Bundle ROM 均不提交。
+- 尚未进行真机触控、显示补偿效果和长期游戏流程复测；M2/M3 长时间 Co-Simulation 本轮未重跑。工作流保持仅 `workflow_dispatch`，推送后仍需用户手动触发新 IPA 构建。
 
 ## 2026-10-17 离线指针表审计与批量覆盖
 

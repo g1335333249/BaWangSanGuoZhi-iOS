@@ -5,8 +5,8 @@ private final class PadTouchControl: UIControl {
     var onPress: (() -> Void)?
     var onRelease: (() -> Void)?
     private var pressed = false {
-        didSet { backgroundColor = pressed ? UIColor.orange.withAlphaComponent(0.88)
-                                      : UIColor.darkGray.withAlphaComponent(0.78) }
+        didSet { backgroundColor = pressed ? UIColor.orange.withAlphaComponent(0.72)
+                                      : UIColor.darkGray.withAlphaComponent(0.43) }
     }
 
     init(title: String, diameter: CGFloat) {
@@ -14,12 +14,12 @@ private final class PadTouchControl: UIControl {
         isMultipleTouchEnabled = true
         layer.cornerRadius = diameter / 2
         layer.borderWidth = 1
-        layer.borderColor = UIColor.white.withAlphaComponent(0.7).cgColor
-        backgroundColor = UIColor.darkGray.withAlphaComponent(0.78)
+        layer.borderColor = UIColor.white.withAlphaComponent(0.55).cgColor
+        backgroundColor = UIColor.darkGray.withAlphaComponent(0.43)
         let label = UILabel(frame: .zero)
         label.text = title
         label.textColor = .white
-        label.font = .boldSystemFont(ofSize: title.count > 1 ? 12 : 20)
+        label.font = .boldSystemFont(ofSize: title.count > 1 ? max(13, diameter * 0.25) : diameter * 0.41)
         label.textAlignment = .center
         label.isUserInteractionEnabled = false
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -68,6 +68,7 @@ private struct PadButton: UIViewRepresentable {
     }
 
     func updateUIView(_ control: PadTouchControl, context: Context) {
+        control.layer.cornerRadius = diameter / 2
         if session.paused || !session.running { control.cancelPress() }
     }
 }
@@ -77,28 +78,40 @@ struct VirtualPad: View {
 
     var body: some View {
         GeometryReader { area in
+            // 48pt was too small on wide phones. Adapt 52..68pt so smaller
+            // landscape devices still retain a large touch target.
+            let d = min(CGFloat(68), max(CGFloat(52), area.size.width * 0.059))
+            let gap = max(CGFloat(30), d * 0.62)
             HStack(alignment: .bottom, spacing: 0) {
                 VStack(spacing: 0) {
-                    PadButton(title: "↑", mask: 0x01, session: session).frame(width: 48, height: 48)
-                    HStack(spacing: 42) {
-                        PadButton(title: "←", mask: 0x04, session: session).frame(width: 48, height: 48)
-                        PadButton(title: "→", mask: 0x08, session: session).frame(width: 48, height: 48)
+                    PadButton(title: "↑", mask: 0x01, session: session, diameter: d)
+                        .frame(width: d, height: d)
+                    HStack(spacing: gap) {
+                        PadButton(title: "←", mask: 0x04, session: session, diameter: d)
+                            .frame(width: d, height: d)
+                        PadButton(title: "→", mask: 0x08, session: session, diameter: d)
+                            .frame(width: d, height: d)
                     }
-                    PadButton(title: "↓", mask: 0x02, session: session).frame(width: 48, height: 48)
+                    PadButton(title: "↓", mask: 0x02, session: session, diameter: d)
+                        .frame(width: d, height: d)
                 }
                 Spacer(minLength: 0)
-                VStack(spacing: 12) {
-                    PadButton(title: "START", mask: 0x80, session: session)
-                        .frame(width: 48, height: 48)
+                VStack(spacing: 9) {
+                    PadButton(title: "START", mask: 0x80, session: session, diameter: d)
+                        .frame(width: d, height: d)
                     HStack(spacing: 5) {
-                        PadButton(title: "A", mask: 0x40, session: session).frame(width: 48, height: 48)
-                        PadButton(title: "B", mask: 0x10, session: session).frame(width: 48, height: 48)
-                        PadButton(title: "C", mask: 0x20, session: session).frame(width: 48, height: 48)
+                        PadButton(title: "A", mask: 0x40, session: session, diameter: d)
+                            .frame(width: d, height: d)
+                        PadButton(title: "B", mask: 0x10, session: session, diameter: d)
+                            .frame(width: d, height: d)
+                        PadButton(title: "C", mask: 0x20, session: session, diameter: d)
+                            .frame(width: d, height: d)
                     }
                 }
             }
-            .padding(.horizontal, max(8, area.safeAreaInsets.leading))
-            .padding(.bottom, max(8, area.safeAreaInsets.bottom))
+            .padding(.leading, max(9, area.safeAreaInsets.leading))
+            .padding(.trailing, max(9, area.safeAreaInsets.trailing))
+            .padding(.bottom, max(9, area.safeAreaInsets.bottom))
             .frame(width: area.size.width, height: area.size.height, alignment: .bottom)
         }
     }

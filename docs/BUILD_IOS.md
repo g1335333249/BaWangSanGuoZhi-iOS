@@ -45,7 +45,7 @@ xcodebuild -project apps/ios/BawangSanguozhi.xcodeproj \
 
 该 App 的重编译逻辑与 macOS 运行器共用 `games/bawang_sanguozhi/build/generated`，经 `apps/core` 链接；画面由实际 VDP 扫描线输出，经 Metal 呈现。开发中的 68000 解释器仍随框架链接以便统计诊断；App 在发现任何解释执行指令或缺失的 ROM 静态分发入口时停止游戏。Z80 音频路径仍是芯片解释执行，尚未达到整款游戏严格静态原生的最终标准。
 
-当前版本 **0.1.3 Build 11**。虚拟手柄改用 UIKit 按下/抬起事件和逐帧短触保留；本地输入状态测试通过，真机触控仍待新包复验。具体游戏流程和测试结果见 [PROGRESS.md](PROGRESS.md)。
+当前版本 **0.1.4 Build 12**。虚拟手柄改用 UIKit 按下/抬起事件和逐帧短触保留；本地输入状态测试通过，真机触控仍待新包复验。显示补偿与适配说明见 [PATCH_DISPLAY_0_1_4.md](PATCH_DISPLAY_0_1_4.md)。具体游戏流程和测试结果见 [PROGRESS.md](PROGRESS.md)。
 
 ## 可选内置 ROM 与本机未签名 IPA
 
@@ -70,6 +70,6 @@ python3 scripts/package_unsigned_ipa.py \
 
 ## GitHub Actions 一键构建
 
-`.github/workflows/build-unsigned-ipa.yml` 仅支持手动 `workflow_dispatch`。在仓库的 Actions 页面选择 **Build Bawang Sanguozhi Unsigned IPA → Run workflow**；无需 ROM 链接、Secret 或私有 Release。工作流直接校验检出的 `input/霸王三国志.smd` SHA256，使用 `scripts/generate.sh` 转换标准 BIN 并重生 32 个 C 分片，然后构建 iphoneos ARM64 核心和 App、校验 Payload/ROM，并上传 `BawangSanguozhi-iOS-0.1.3-Build11` Artifact，保留 7 天。
+`.github/workflows/build-unsigned-ipa.yml` 仅支持手动 `workflow_dispatch`。在仓库的 Actions 页面选择 **Build Bawang Sanguozhi Unsigned IPA → Run workflow**；无需 ROM 链接、Secret 或私有 Release。工作流直接校验检出的 `input/霸王三国志.smd` SHA256，使用 `scripts/generate.sh` 转换标准 BIN 并重生 32 个 C 分片，然后构建 iphoneos ARM64 核心和 App、校验 Payload/ROM，并上传 `BawangSanguozhi-iOS-0.1.4-Build12` Artifact，保留 7 天。
 
 Runner 使用 `macos-26` ARM64，并明确选择 Xcode 26.6；GitHub Runner [镜像清单](https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md)列有该版本。未签名 IPA 下载后仍需有效签名才可在普通 iPhone 安装。GitHub Actions 的实际执行记录与 Artifact 地址应以本次手动运行结果为准。
