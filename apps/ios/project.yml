@@ -18,8 +18,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.g1335333249.BawangSanguozhi
         PRODUCT_NAME: BawangSanguozhi
-        MARKETING_VERSION: 0.1.9
-        CURRENT_PROJECT_VERSION: 17
+        MARKETING_VERSION: 0.2.0
+        CURRENT_PROJECT_VERSION: 18
         TARGETED_DEVICE_FAMILY: '1'
         INFOPLIST_FILE: BawangSanguozhi/Info.plist
         SWIFT_OBJC_BRIDGING_HEADER: BawangSanguozhi/GameCoreBridge/BridgingHeader.h

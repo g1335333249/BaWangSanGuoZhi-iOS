@@ -8,7 +8,7 @@ struct GameMetalView: UIViewRepresentable {
 
     func makeUIView(context: Context) -> MTKView {
         let view = MTKView()
-        view.isUserInteractionEnabled = false
+        view.isUserInteractionEnabled = true
         view.device = MTLCreateSystemDefaultDevice()
         view.colorPixelFormat = .bgra8Unorm
         view.clearColor = MTLClearColorMake(0, 0, 0, 1)
@@ -17,6 +17,15 @@ struct GameMetalView: UIViewRepresentable {
         view.enableSetNeedsDisplay = false
         view.delegate = context.coordinator
         context.coordinator.configure(view)
+        let tap = UITapGestureRecognizer(target: context.coordinator,
+                                       action: #selector(Renderer.handleTap(_:)))
+        tap.cancelsTouchesInView = false
+        let pan = UIPanGestureRecognizer(target: context.coordinator,
+                                       action: #selector(Renderer.handlePan(_:)))
+        pan.cancelsTouchesInView = false
+        tap.require(toFail: pan)
+        view.addGestureRecognizer(tap)
+        view.addGestureRecognizer(pan)
         return view
     }
 
@@ -37,6 +46,33 @@ final class Renderer: NSObject, MTKViewDelegate {
     private let mapFlagRecovery = GameMapFlagRecovery()
 
     init(session: GameSession) { self.session = session }
+
+    @objc func handleTap(_ gesture: UITapGestureRecognizer) {
+        guard gesture.state == .ended, let view = gesture.view else { return }
+        let sourceWidth = max(1, min(320, session.videoWidth))
+        let half = GameDisplayGeometry.normalizedHalfSize(
+            canvasWidth: Float(view.bounds.width),
+            canvasHeight: Float(view.bounds.height),
+            sourceWidth: Float(sourceWidth))
+        let contentWidth = CGFloat(half.0) * view.bounds.width
+        let contentHeight = CGFloat(half.1) * view.bounds.height
+        let left = (view.bounds.width - contentWidth) / 2
+        let top = (view.bounds.height - contentHeight) / 2
+        let p = gesture.location(in: view)
+        guard contentWidth > 0, contentHeight > 0,
+              p.x >= left, p.x < left + contentWidth,
+              p.y >= top, p.y < top + contentHeight else { return }
+        session.tapGame(x: Int((p.x - left) / contentWidth * CGFloat(sourceWidth)),
+                        y: Int((p.y - top) / contentHeight * 224),
+                        width: sourceWidth)
+    }
+
+    @objc func handlePan(_ gesture: UIPanGestureRecognizer) {
+        guard gesture.state == .ended, let view = gesture.view else { return }
+        let delta = gesture.translation(in: view)
+        guard hypot(delta.x, delta.y) >= 18 else { return }
+        session.swipeGame(dx: delta.x, dy: delta.y)
+    }
 
     func configure(_ view: MTKView) {
         guard let device = view.device,
@@ -109,6 +145,8 @@ final class Renderer: NSObject, MTKViewDelegate {
         encoder.setRenderPipelineState(pipeline)
         encoder.setVertexBytes(&rectangle, length: MemoryLayout.size(ofValue: rectangle), index: 0)
         encoder.setVertexBytes(&rightUV, length: MemoryLayout.size(ofValue: rightUV), index: 1)
+        var quality = UInt32(max(0, min(2, UserDefaults.standard.integer(forKey: "BawangVideoFilter"))))
+        encoder.setFragmentBytes(&quality, length: MemoryLayout<UInt32>.size, index: 0)
         encoder.setFragmentTexture(texture, index: 0)
         encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
         encoder.endEncoding()

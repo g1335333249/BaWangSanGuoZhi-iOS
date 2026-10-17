@@ -9,6 +9,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSData *)stepWithButtons:(uint16_t)buttons;
 - (nullable NSData *)copyAudio;
 - (NSInteger)persistSRAMAtPath:(NSString *)path;
+- (nullable NSData *)checkpointData;
+- (BOOL)restoreCheckpoint:(NSData *)data;
+- (BOOL)forcePersistSRAMAtPath:(NSString *)path;
+@property (nonatomic, readonly) uint64_t stateFingerprint;
 @property (nonatomic, readonly) NSInteger videoWidth;
 @property (nonatomic, readonly) uint64_t nativeInstructionCount;
 @property (nonatomic, readonly) uint64_t rawDispatchMissCount;

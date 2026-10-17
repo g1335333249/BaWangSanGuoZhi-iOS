@@ -9,6 +9,7 @@
 #include "video/genesis_bus.h"
 #include "video/genesis_machine.h"
 #include "genesis_clocks.h"
+#include "rb_state.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -174,3 +175,50 @@ uint64_t bawang_core_interpreted_instructions(void) { return g_m68ki_total_insn_
 uint64_t bawang_core_frames(void) { return g_frame_count; }
 uint64_t bawang_core_raw_dispatch_misses(void) { return glue_miss_count_any(); }
 int bawang_core_width(void) { return frame_width; }
+
+/* Save-state fast path: valid only while the SAME game fiber remains alive.
+ * In particular, NEVER persist these exec/stack bytes and load them after an
+ * app restart: they contain native host pointers. Disk persistence is handled
+ * separately using verified deterministic input replay. */
+size_t bawang_core_checkpoint_bound(void)
+{
+    return running ? genesis_rb_bound() : 0;
+}
+size_t bawang_core_checkpoint_save(void *dst, size_t capacity)
+{
+    if (!running || !dst) return 0;
+    return genesis_rb_save(dst, capacity);
+}
+int bawang_core_checkpoint_load(const void *data, size_t length)
+{
+    if (!running || !data || !length) return 0;
+    if (!genesis_rb_load(data, length)) return 0;
+    pcm_count = 0;
+    pcm_phase = 0;
+    return 1;
+}
+
+/* Stable *guest* state fingerprint for cross-process replay validation.
+ * Exclude exec (host process address dependent) and the host output buffers.
+ * The reference includes guest CPU, RAM, VDP, bus/SRAM, Z80 and audio chips.
+ * This is a consistency check, not a substitute for a runtime correctness test. */
+uint64_t bawang_core_state_fingerprint(void)
+{
+    if (!running) return 0;
+    GenesisRbDigest digest;
+    genesis_rb_digest(&digest);
+    static const int guest_parts[] = {
+        GENESIS_RB_PART_CPU, GENESIS_RB_PART_RAM, GENESIS_RB_PART_VDP,
+        GENESIS_RB_PART_BUS, GENESIS_RB_PART_Z80,
+        GENESIS_RB_PART_FM, GENESIS_RB_PART_PSG
+    };
+    uint64_t h = UINT64_C(0xcbf29ce484222325);
+    for (size_t i = 0; i < sizeof(guest_parts) / sizeof(guest_parts[0]); i++) {
+        uint64_t v = digest.part[guest_parts[i]];
+        for (int byte = 0; byte < 8; byte++) {
+            h ^= (uint8_t)(v >> (8 * byte));
+            h *= UINT64_C(0x100000001b3);
+        }
+    }
+    return h;
+}

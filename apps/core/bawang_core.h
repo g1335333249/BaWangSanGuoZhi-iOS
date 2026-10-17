@@ -32,6 +32,13 @@ int bawang_core_start_file(const char *rom_path, const char *sram_path);
  * Already-uploaded VDP tiles update when the game redraws the text. */
 void bawang_core_set_simplified(int enabled);
 void bawang_core_stop(void);
+/* In-process fast checkpoints; NEVER deserialize these after restart. */
+size_t bawang_core_checkpoint_bound(void);
+size_t bawang_core_checkpoint_save(void *dst, size_t capacity);
+int bawang_core_checkpoint_load(const void *data, size_t length);
+/* Guest-state digest for replay verification (0 = unavailable). */
+uint64_t bawang_core_state_fingerprint(void);
+
 int bawang_core_frame(uint16_t buttons, uint32_t *argb, size_t stride_pixels);
 /* 48 kHz interleaved stereo PCM for the most recent frame; caller owns copy. */
 size_t bawang_core_audio(int16_t *dst, size_t capacity_frames);
