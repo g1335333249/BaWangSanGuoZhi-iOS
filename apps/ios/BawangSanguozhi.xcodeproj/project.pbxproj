@@ -21,11 +21,13 @@
 		897E022B4473A485A43FB0A4 /* VirtualInputState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB869D19A02B8C1447BE78A5 /* VirtualInputState.swift */; };
 		96AE6861CE7D045A5661FC9D /* GameDisplayGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2240B2E373049A054B7EC65F /* GameDisplayGeometry.swift */; };
 		A4D0A497DAE6938E951A2401 /* VirtualPad.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68D7BBE02BC36B33E2D9127F /* VirtualPad.swift */; };
+		E5DCF12BC14459955CBF380D /* GameTextLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D0282CCACAECB46D185E3FE /* GameTextLocalization.swift */; };
 		EA3A74E971A48AC2BBF36591 /* GameSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23841E974FB6A98B65E33DDE /* GameSession.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		03AA75B9A6EC881E072C88BC /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
+		0D0282CCACAECB46D185E3FE /* GameTextLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameTextLocalization.swift; sourceTree = "<group>"; };
 		0F22CA634519A235F60F99E3 /* BawangApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BawangApp.swift; sourceTree = "<group>"; };
 		1644605D22EA52FEA68FF3EC /* GameMetalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameMetalView.swift; sourceTree = "<group>"; };
 		1EF854047A3791E71393F14A /* SaveManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveManager.swift; sourceTree = "<group>"; };
@@ -112,6 +114,7 @@
 				2240B2E373049A054B7EC65F /* GameDisplayGeometry.swift */,
 				9A87CB7F0F2BB43EA08C4FFC /* GameFramePresentationFilter.swift */,
 				1644605D22EA52FEA68FF3EC /* GameMetalView.swift */,
+				0D0282CCACAECB46D185E3FE /* GameTextLocalization.swift */,
 			);
 			path = GameView;
 			sourceTree = "<group>";
@@ -222,6 +225,7 @@
 				3ACE9F8FD178D51B2F189E3D /* GameMetalView.swift in Sources */,
 				EA3A74E971A48AC2BBF36591 /* GameSession.swift in Sources */,
 				1EBAB6C1244DB38E35BDE8DD /* GameShaders.metal in Sources */,
+				E5DCF12BC14459955CBF380D /* GameTextLocalization.swift in Sources */,
 				2FC209674B22C166FED7EEB0 /* SaveManager.swift in Sources */,
 				897E022B4473A485A43FB0A4 /* VirtualInputState.swift in Sources */,
 				A4D0A497DAE6938E951A2401 /* VirtualPad.swift in Sources */,
@@ -293,7 +297,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 13;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/../core";
 				INFOPLIST_FILE = BawangSanguozhi/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -302,7 +306,7 @@
 				);
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = "$(SRCROOT)/../core/build-ios-device";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = "$(SRCROOT)/../core/build-ios-simulator";
-				MARKETING_VERSION = 0.1.4;
+				MARKETING_VERSION = 0.1.5;
 				OTHER_LDFLAGS = "-lBawangCore -lc++";
 				PRODUCT_BUNDLE_IDENTIFIER = com.g1335333249.BawangSanguozhi;
 				PRODUCT_NAME = BawangSanguozhi;
@@ -381,7 +385,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 13;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/../core";
 				INFOPLIST_FILE = BawangSanguozhi/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -390,7 +394,7 @@
 				);
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = "$(SRCROOT)/../core/build-ios-device";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = "$(SRCROOT)/../core/build-ios-simulator";
-				MARKETING_VERSION = 0.1.4;
+				MARKETING_VERSION = 0.1.5;
 				OTHER_LDFLAGS = "-lBawangCore -lc++";
 				PRODUCT_BUNDLE_IDENTIFIER = com.g1335333249.BawangSanguozhi;
 				PRODUCT_NAME = BawangSanguozhi;

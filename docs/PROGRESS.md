@@ -1,6 +1,12 @@
 # 开发进度
 
-版本：0.3.7（2026-10-17，iOS 显示与虚拟按键补丁；App 0.1.4 Build 12）
+版本：0.3.8（2026-10-17，iOS 单词级显示替换试验；App 0.1.5 Build 13）
+
+## 2026-10-17 iOS 0.1.5 Build 13 增量补丁
+
+- 应用用户提供的 0.1.4→0.1.5 增量补丁。界面移除 ROM 文件导入入口，保留底层 ROM 读取与校验；显示设置增加繁体原版和仅识别“劉備”的简体试验，替换仅作用于画面呈现，不修改游戏核心、ROM 或 SRAM。细节和局限见 `docs/PATCH_LANGUAGE_0_1_5.md`。
+- `git apply --check`、XcodeGen 生成、`tests/test_game_text_localization.swift`、iphoneos ARM64 Release 无签名编译均通过。带已校验 Bundle ROM 再次编译成功，`scripts/package_unsigned_ipa.py` 核对 0.1.5 Build 13 未签名 IPA：2,833,192 字节，SHA256 `b412e2c10c8af8876463da8f824596045b3f16f5de12ed1327dc690fc66f63ae`，包内标准 BIN SHA256 `e70f0a92c205ea432080cc48c18d1d43b7fc4d45464ed7fb218b119096e7cdd9`。打包时 commit 元数据为补丁前 HEAD；新提交需重新构建才会对应最终 SHA。
+- 工作流依旧只有 `workflow_dispatch`。真机 OCR 识别、显示效果和存档升级路径尚未验证；本轮未重跑长期 Co-Simulation。暂存的 Bundle BIN 与本地 IPA 不提交。
 
 ## 2026-10-17 iOS 0.1.4 Build 12 整合补丁
 

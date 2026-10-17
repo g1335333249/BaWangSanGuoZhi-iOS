@@ -34,6 +34,7 @@ final class Renderer: NSObject, MTKViewDelegate {
     private var nextTextureIndex = 0
     private let inFlight = DispatchSemaphore(value: 3)
     private let presentationFilter = GameFramePresentationFilter()
+    private let textLocalization = GameTextLocalization()
 
     init(session: GameSession) { self.session = session }
 
@@ -63,7 +64,7 @@ final class Renderer: NSObject, MTKViewDelegate {
               let descriptor = view.currentRenderPassDescriptor,
               let drawable = view.currentDrawable,
               let command = queue?.makeCommandBuffer() else {
-            if !session.running { presentationFilter.reset() }
+            if !session.running { presentationFilter.reset(); textLocalization.reset() }
             return
         }
         let sourceWidth = max(1, min(320, session.videoWidth))
@@ -76,7 +77,9 @@ final class Renderer: NSObject, MTKViewDelegate {
         presentationFilter.suppressTransientMapBlackTiles =
             defaults.object(forKey: "BawangMapBlackTileRepair") == nil ||
             defaults.bool(forKey: "BawangMapBlackTileRepair")
-        let frame = presentationFilter.present(rawFrame, visibleWidth: sourceWidth)
+        let filtered = presentationFilter.present(rawFrame, visibleWidth: sourceWidth)
+        let frame = textLocalization.present(filtered, visibleWidth: sourceWidth,
+                           simplified: defaults.string(forKey: "BawangGameLanguage") == "simplified")
 
         // Completion callbacks return slots in command-buffer submission order.
         inFlight.wait()

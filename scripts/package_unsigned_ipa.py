@@ -9,7 +9,7 @@ import zipfile
 from pathlib import Path
 
 EXPECTED_ROM = "e70f0a92c205ea432080cc48c18d1d43b7fc4d45464ed7fb218b119096e7cdd9"
-IPA_NAME = "BawangSanguozhi-0.1.4-build12-unsigned.ipa"
+IPA_NAME = "BawangSanguozhi-0.1.5-build13-unsigned.ipa"
 
 
 def command(*argv: str) -> str:
@@ -20,8 +20,8 @@ def verify_app(app: Path) -> dict:
     assert app.is_dir() and app.name == "BawangSanguozhi.app", "missing built .app"
     info = plistlib.loads((app / "Info.plist").read_bytes())
     assert info["CFBundleIdentifier"] == "com.g1335333249.BawangSanguozhi"
-    assert info["CFBundleShortVersionString"] == "0.1.4"
-    assert info["CFBundleVersion"] == "12"
+    assert info["CFBundleShortVersionString"] == "0.1.5"
+    assert info["CFBundleVersion"] == "13"
     executable = app / info["CFBundleExecutable"]
     assert executable.is_file()
     assert command("xcrun", "lipo", "-archs", str(executable)).split() == ["arm64"]
@@ -36,8 +36,8 @@ def verify_app(app: Path) -> dict:
     assert not (app / "_CodeSignature").exists() and not (app / "embedded.mobileprovision").exists()
     disallowed = (".srm", ".smd", ".log", ".dump", ".dmp", "bawang_part")
     assert not any(part.name.lower().endswith(disallowed) for part in app.rglob("*"))
-    return {"bundle_id": info["CFBundleIdentifier"], "version": "0.1.4",
-            "build": "12", "platform": "iphoneos arm64", "rom_sha256": EXPECTED_ROM}
+    return {"bundle_id": info["CFBundleIdentifier"], "version": "0.1.5",
+            "build": "13", "platform": "iphoneos arm64", "rom_sha256": EXPECTED_ROM}
 
 
 def main() -> None:
