@@ -19,3 +19,5 @@ apply_one "$core" scripts/patches/m68k-rtr-return.patch
 apply_one "$core" scripts/patches/m68k-m2-codegen.patch
 apply_one third_party/segagenesisrecomp scripts/patches/m2-runtime-cosim.patch
 apply_one third_party/segagenesisrecomp scripts/patches/m2-cosim-input-script.patch
+apply_one third_party/segagenesisrecomp scripts/patches/m3-sram-geometry.patch
+apply_one third_party/segagenesisrecomp scripts/patches/m3-native-coverage.patch

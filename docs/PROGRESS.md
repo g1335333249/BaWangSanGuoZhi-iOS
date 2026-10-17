@@ -1,6 +1,30 @@
 # 开发进度
 
-版本：0.2.4（2026-10-17，原生首回合进入袁术菜单并执行「情報→他國」；M2 启动与首回合菜单路径通过）
+版本：0.3.1（2026-10-17，M3 最低流程已打通，iOS App 0.1.0 Build 8 已在模拟器运行；全游戏及真机未验收）
+
+## 2026-10-17 跨平台 C 核心边界与 Build 8
+
+- 根据新架构要求，将 SMD 解交错、BIN SHA256 验证、ROM 文件导入及 64 KiB SRAM 原子写入/备份恢复全部移至 `apps/core/bawang_storage.c`。复用上游纯 C 的 `genesis_identity_sha256`，核心不再包含 CommonCrypto；Swift 不再使用 CryptoKit 或实现游戏资源转换/存档格式。`apps/core/bawang_core.h` 统一导出 ROM、帧、画面、音频、按键、SRAM 和原生/解释执行统计接口，详见 `docs/CORE_API.md`。Objective-C++ 只传递 iOS 沙盒路径和音视频缓冲；未来 Android 可由 JNI 调用相同接口，Android 构建尚未验证。
+- `BawangStorageTest` 通过：原始 SMD 与标准 BIN 在 C 转换后逐字节相同，固定 SHA256 校验通过，损坏 ROM 被拒绝，SRAM 原子写入与主文件损坏后的 `.bak` 恢复通过。`tests/test_m4_core_smoke.py` 600 帧原生 VDP/音频再次通过：原生 68000 解释执行 0、原始分发缺口 0，故意强制解释器时计数 8,076,920。macOS、arm64 Simulator 和 arm64 iphoneos 核心均重新编译成功。
+- App 版本升至 **0.1.0 Build 8**。arm64 Simulator 与 iphoneos 无签名 `xcodebuild` 均成功；在 iPhone 17 Pro 模拟器安装、启动后，实拍帧缓冲显示原版人物插画与虚拟按键。该截图只保存在 `apps/core/build-macos/ios_sim_build8_10s.png`（Git 忽略）。模拟器触控流程、真机及 Android 尚未验收。
+- M3 合并流程最终通过：原版「開發」扣黄金 100、194 年一月推进到二月、二月原版存档写出 64 KiB；重启并通过原版「載入遊戲」读取，仍为二月且黄金 900。`tests/test_m3_full_save.py` 两项通过；`tests/test_m3_develop_month.py` 两项通过，9,600 个原生/解释器 CPU/时序/VDP 检查点零分歧。`tests/test_m2_cosim.py` **10/10** 通过，上游 **15/15** 通过。该路径无原始分发缺口，解释器回退 0。
+- 尚未解决：真机当前 Offline，模拟器虚拟按钮的真实点击未完成；音频实际听感与更长战役未验收；Z80 仍通过芯片解释路径执行，整款游戏不能称严格静态原生。ROM、生成分片、截图和 SRAM 均不提交。
+
+## 2026-10-17 M3 内政、回合、SRAM 与 M4 首个 iOS App
+
+- **重复「情報」的根因**：ROM 标准 BIN SHA256 仍为 `e70f0a92c205ea432080cc48c18d1d43b7fc4d45464ed7fb218b119096e7cdd9`。游戏在 `$200000–$20FFFF` 使用卡带 SRAM，并在 `$20A001` 等地址写入菜单/游戏数据，但此前运行时仅支持 16 KiB，且要求 `$A130F1` 使能；本 ROM 始终不写该使能位，导致读回旧值并把顶栏类别反复画成「情報」。ROM header 末地址 `$000FFFFF`，SRAM 起始 `$200001`，两者不重叠。补丁 `scripts/patches/m3-sram-geometry.patch` 扩为 64 KiB，在 SRAM 位于 ROM 范围外时始终可见，并更新回滚布局断言；可选 `GENESIS_M3_SRAM_TRACE` 跟踪该范围的写入。修复后实际 VDP 顶栏显示「情報／軍事／人事／商人／內政／外交」。未直接改生成 C。
+- ROM 动态入口 `$0211DA/$0208AC/$01FC7C` 逐项对照相邻 RTS 和入口指令后加入 `games/bawang_sanguozhi/game.toml`，重生 32 个 C 分片。`$01FC7C` 在选择「內政→開發」后真实命中；补入后 25,100 帧原生路径 **0 raw miss**。
+- `tests/bawang_m3_develop.input` 由袁术 194 年首回合实际菜单选「內政→開發」、选择袁术、选择「終了」、输入 100 黄金。VDP 显示黄金 **1000→900**；工作 RAM 大端字段 `$FF2942` 同为 **1000→900**。`python3 tests/test_m3_develop.py` 已通过；原生/解释器在该操作期间 **4,000 个 CPU／时序／VDP 检查点零分歧**。`tests/bawang_m3_develop_month.input` 继续确认两座城的月末提示，真实进入 **194 年 2 月**，`$FF100C=1`、黄金仍 900，31,000 帧为 0 raw miss。`python3 tests/test_m3_develop_month.py` 已通过；合并路径 **9,600 个 CPU／时序／VDP 检查点零分歧**。
+- `python3 tests/test_m3_month.py` 再次通过：独立首回合至下月脚本 28,500 帧 0 raw miss，原生/解释器 11,000 个 CPU／时序／VDP 检查点零分歧。项目既有 `python3 tests/test_m2_cosim.py` **10/10**，上游 CTest **15/15**。这里的 `hybrid_jmp/call_interpret` 次数是原生间接分发；`GENESIS_FLOOR=0` 时真实解释器回退为 0。
+- 原版 Start→「3.存檔」→确认后，非 benchmark 桌面运行器落盘 **65,536 字节** SRAM 文件，**4,522 字节非零**；重新启动时日志显示载入 **65536/65536**。标题剧本列表第 7 项「載入遊戲」可进入保存状态，原版画面返回 194 年 1 月袁术城，RAM `$FF100C=0`、`$FF2942=1000`。独立总线/磁盘 `python3 tests/test_m3_sram_runtime.py` 通过，慢速端到端 `python3 tests/test_m3_original_save.py` **保存与重启读取两项均通过**。进一步的「開發→2 月→存档→重启读取」完整链路 `tests/test_m3_full_save.py` **两项通过**：二月存档重载后黄金仍为 900。此处的保存是原版游戏逻辑，未声称实现完整 CPU/VDP 即时快照。
+- `apps/core/` 抽出 macOS/iOS 共用核心，实际链接 32 个生成 C 分片和现有 MD 硬件运行时。600 帧无窗口烟测从真实 ROM 产生原版标题 VDP 帧，`6,644,873` 条原生 68000 指令、**0 raw dispatch miss、0 解释执行指令**。FM/PSG 混音输出在该段有 **960,958 个非零 PCM 样本**。`scripts/patches/m3-native-coverage.patch` 增加单调解释执行计数，iOS 端一旦非零便停止并报错，防止悄悄回退。`python3 tests/test_m4_core_smoke.py` 两模式画面/音频哈希一致，故意强制解释器时计数 **8,076,920**，证明零计数断言确有检测能力。
+- `apps/ios/BawangSanguozhi.xcodeproj` 为真正的 SwiftUI/Objective-C++/Metal App（版本 **0.1.0 Build 7**）：本地用户 ROM 导入、SMD 无损转换为标准 BIN 及 SHA256 验证、真实 VDP 帧整数缩放、虚拟方向键及 A/B/C/Start、GameController、SRAM 原子保存与备份、后台暂停、AVAudioEngine 接收核心真实 FM/PSG PCM。`xcodebuild` 的 **arm64 iOS Simulator 与 iphoneos 无签名构建均成功**；在 iPhone 17 Pro 模拟器安装并使用本地已校验 ROM 启动，自动截图显示实际开场画面及中文文字。ROM、生成资源和截图不在 Git 提交中。
+- Xcode 工程未固定禁用签名；本地构建命令以 `CODE_SIGNING_ALLOWED=NO` 显式指定无签名模式。真机上线需要开发者选择合法 Team 与匹配的 provisioning profile，再完成真实设备验收。
+- Build 7 收紧 `apps/core/bawang_core.c` 的扫描线输出边界为 224 行，与 Objective-C++ 桥接分配的 320×224 缓冲完全一致，避免未来 240 行 VDP 模式越界；macOS/iphoneos/Simulator 核心和 App 随后重新编译。
+- Build 7 曾通过 Swift 版 SMD 转换测试；Build 8 已删除该平台专属实现，改由上述 C 核心测试覆盖相同转换与校验。
+- 已知限制：尚未完成模拟器触控输入全流程验收（Computer Use 的系统辅助权限仍未授予）。本机有 Apple Development 证书，但 `xcrun xctrace list devices` 把用户 iPhone 列为 **Offline**；未验证匹配的 provisioning profile，故未宣称 iPhone 真机运行或 IPA。音频非零样本与 AVAudioEngine 链接已验证，实际听感未验收。Z80 仍通过框架芯片解释路径运行，整款游戏不能称为完全静态原生；长期 AI、战争、外交、完整统一战役也未验证。M4 目前为可启动的可玩测试版基础，不是完成版。
+- 授权边界：上游 `third_party/segagenesisrecomp/LICENSE.md` 与 `LICENSE-recompiler` 均为 PolyForm Noncommercial 1.0.0；游戏内容仍属原权利人。仓库仅保留代码/补丁和哈希，ROM 与截图留在被忽略的本地目录，未推送或公开发布 App。
+- 构建/回归命令：`sh scripts/generate.sh`；`cmake --build apps/macos/build -j8`、`cmake --build apps/macos/build-cosim -j8`、`cmake --build games/bawang_sanguozhi/build/{native,ios} -j8`、`cmake --build apps/core/build-{macos,ios-device,ios-simulator} -j8`；`xcodegen generate --spec apps/ios/project.yml`；`xcodebuild -project apps/ios/BawangSanguozhi.xcodeproj -scheme BawangSanguozhi -sdk iphonesimulator/iphoneos ... CODE_SIGNING_ALLOWED=NO build`。上游补丁重复应用检查 `sh scripts/apply_upstream_patches.sh` 全为 already applied。下一步：完成合并路径 9,600 点比较与慢速原版存档自动测试，继续验证触控、背景音效和真机签名部署。
 
 ## 2026-10-17 M2 中断调度与首回合命令
 

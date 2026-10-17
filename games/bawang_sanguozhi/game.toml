@@ -73,5 +73,11 @@ late_extra = [
   0x023814,
   # Follow-on country inspection handler after $0238E6 RTS.
   0x0238E8,
+  # START system menu save entry: PEA/JSR sequence after $0211D8 RTS.
+  0x0211DA,
+  # Save menu helper: LINK A6,#-4 immediately after $0208AA RTS.
+  0x0208AC,
+  # Domestic development: indirect call after $01FC7A RTS; MOVEA.L begins here.
+  0x01FC7C,
 ]
 blacklist = []

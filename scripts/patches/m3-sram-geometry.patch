@@ -1,0 +1,113 @@
+diff --git a/runner/rb_state.c b/runner/rb_state.c
+index 5cc64d0..bc4df72 100644
+--- a/runner/rb_state.c
++++ b/runner/rb_state.c
+@@ -31,8 +31,8 @@ _Static_assert(sizeof(g_ram) == 0x10000, "work RAM size changed");
+ #if UINTPTR_MAX == 0xFFFFFFFFFFFFFFFFu
+ /* 64-bit layouts (the host pointers inside are scrubbed by machine_rb_save). */
+ _Static_assert(sizeof(GVDP) == 65824, "GVDP changed: review machine_rb_save (pointers) and rb_state");
+-_Static_assert(sizeof(GenesisBus) == 24664, "GenesisBus changed: review machine_rb_save and rb_state");
+-_Static_assert(sizeof(GenesisMachine) == 90576, "GenesisMachine changed: review machine_rb_save and rb_state");
++_Static_assert(sizeof(GenesisBus) == 73816, "GenesisBus changed: review machine_rb_save and rb_state");
++_Static_assert(sizeof(GenesisMachine) == 139728, "GenesisMachine changed: review machine_rb_save and rb_state");
+ #endif
+ 
+ /* ---- sections ---------------------------------------------------------------- */
+diff --git a/runner/video/genesis_bus.c b/runner/video/genesis_bus.c
+index 4e6cc3b..0323ab9 100644
+--- a/runner/video/genesis_bus.c
++++ b/runner/video/genesis_bus.c
+@@ -8,8 +8,34 @@
+  */
+ #include "genesis_bus.h"
+ #include "../audio/event_queue.h"
++#include <stdio.h>
++#include <stdlib.h>
+ #include <string.h>
+ 
++/* Cartridge-save diagnostics are opt-in and bounded so a normal run pays
++ * only a cached branch. Include writes rejected by the overlay gate. */
++static void trace_sram_write(const GenesisBus *b, uint32_t addr, uint32_t value,
++                             unsigned width)
++{
++    static int enabled = -1;
++    static uint64_t start_frame;
++    static unsigned count;
++    if (enabled < 0) {
++        enabled = getenv("GENESIS_M3_SRAM_TRACE") != NULL;
++        const char *start = getenv("GENESIS_M3_SRAM_TRACE_START_FRAME");
++        if (start) start_frame = strtoull(start, NULL, 10);
++    }
++    extern uint64_t g_frame_count;
++    if (g_frame_count < start_frame) return;
++    if (!enabled || count >= 64) return;
++    if (addr != 0xA130F0u && addr != 0xA130F1u &&
++        (addr < 0x200000u || addr > 0x20FFFFu)) return;
++    fprintf(stderr, "[M3SRAM] frame=%llu addr=$%06X width=%u value=$%08X "
++            "present=%u enabled=%u\n", (unsigned long long)g_frame_count,
++            addr, width, value, b->sram_present, b->sram_enabled);
++    ++count;
++}
++
+ /* Recompiled 68K memory. */
+ extern uint8_t g_rom[0x400000];
+ extern uint8_t g_ram[0x010000];
+@@ -148,11 +174,14 @@ void gbus_sram_setup(GenesisBus *b)
+         uint32_t end   = ((uint32_t)g_rom[0x1B8] << 24) | ((uint32_t)g_rom[0x1B9] << 16)
+                        | ((uint32_t)g_rom[0x1BA] << 8)  |  (uint32_t)g_rom[0x1BB];
+         uint32_t base  = start & ~1u;
++        uint32_t rom_end = ((uint32_t)g_rom[0x1A4] << 24) | ((uint32_t)g_rom[0x1A5] << 16)
++                         | ((uint32_t)g_rom[0x1A6] << 8) | (uint32_t)g_rom[0x1A7];
+         if (end > base && (end - base + 1u) <= sizeof(b->sram)) {
+             b->sram_present = 1;
+             b->sram_base    = base;
+             b->sram_end     = end;
+             b->sram_size    = end - base + 1u;
++            b->sram_always_visible = base > rom_end;
+         }
+     }
+ }
+@@ -183,7 +212,7 @@ void gbus_sram_set_geometry(GenesisBus *b, uint32_t start, uint32_t end)
+  * always-mapped SRAM can be handled when one shows up). */
+ static int sram_hit(const GenesisBus *b, uint32_t a)
+ {
+-    return b->sram_present && b->sram_enabled
++    return b->sram_present && (b->sram_enabled || b->sram_always_visible)
+         && a >= b->sram_base && a <= b->sram_end;
+ }
+ 
+@@ -385,6 +414,7 @@ uint8_t gbus_peek8(const GenesisBus *b, uint32_t a)
+ void gbus_write16(GenesisBus *b, uint32_t a, uint16_t v)
+ {
+     a &= 0xFFFFFFu;
++    trace_sram_write(b, a, v, 2);
+     if (a >= 0xFF0000u) {                                            /* RAM     */
+         uint16_t o = (uint16_t)(a & 0xFFFFu);
+         g_ram[o] = (uint8_t)(v >> 8); g_ram[(uint16_t)(o + 1)] = (uint8_t)v;
+@@ -455,6 +485,7 @@ uint8_t gbus_read8(GenesisBus *b, uint32_t a)
+ void gbus_write8(GenesisBus *b, uint32_t a, uint8_t v)
+ {
+     a &= 0xFFFFFFu;
++    trace_sram_write(b, a, v, 1);
+     /* Byte writes to RAM / Z80 RAM / PSG / FM need exact targeting. */
+     if (a >= 0xFF0000u) { g_ram[a & 0xFFFFu] = v; return; }
+     if (a >= 0xA00000u && a < 0xA10000u) {
+diff --git a/runner/video/genesis_bus.h b/runner/video/genesis_bus.h
+index a1fafbd..3e12184 100644
+--- a/runner/video/genesis_bus.h
++++ b/runner/video/genesis_bus.h
+@@ -67,12 +67,13 @@ typedef struct GenesisBus {
+      * odd/even/both layouts uniformly. (S3K lock-on declares no "RA" header —
+      * its SRAM support will need a spec-driven override when the combined
+      * target is brought up.) */
+-    uint8_t  sram[0x4000];              /* raw bus bytes from sram_base       */
++    uint8_t  sram[0x10000];             /* raw bus bytes; supports $200000-$20FFFF */
+     uint32_t sram_base;                 /* sram_start & ~1                    */
+     uint32_t sram_end;                  /* inclusive end address              */
+     uint32_t sram_size;                 /* bytes spanned (0 = none)           */
+     uint8_t  sram_present;              /* "RA" header found                  */
+     uint8_t  sram_enabled;              /* $A130F1 bit0 overlay state         */
++    uint8_t  sram_always_visible;       /* SRAM sits beyond declared ROM end  */
+ } GenesisBus;
+ 
+ void gbus_init(GenesisBus *b, GVDP *vdp);

@@ -1,0 +1,34 @@
+name: BawangSanguozhi
+options:
+  deploymentTarget:
+    iOS: '15.0'
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: '5.9'
+    IPHONEOS_DEPLOYMENT_TARGET: '15.0'
+    TARGETED_DEVICE_FAMILY: '1'
+targets:
+  BawangSanguozhi:
+    type: application
+    platform: iOS
+    sources:
+      - path: BawangSanguozhi
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.g1335333249.BawangSanguozhi
+        PRODUCT_NAME: BawangSanguozhi
+        MARKETING_VERSION: 0.1.0
+        CURRENT_PROJECT_VERSION: 8
+        TARGETED_DEVICE_FAMILY: '1'
+        INFOPLIST_FILE: BawangSanguozhi/Info.plist
+        SWIFT_OBJC_BRIDGING_HEADER: BawangSanguozhi/GameCoreBridge/BridgingHeader.h
+        HEADER_SEARCH_PATHS: $(SRCROOT)/../core
+        OTHER_LDFLAGS: -lBawangCore -lc++
+        LIBRARY_SEARCH_PATHS[sdk=iphoneos*]: $(SRCROOT)/../core/build-ios-device
+        LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]: $(SRCROOT)/../core/build-ios-simulator
+    dependencies:
+      - sdk: Metal.framework
+      - sdk: MetalKit.framework
+      - sdk: GameController.framework
+      - sdk: AVFoundation.framework
